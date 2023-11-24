@@ -6,8 +6,8 @@ require("start.php");
 
 if (isset($_SESSION['username'])) {
     //user is reeds aangemeld
-    //header("Location: beveiligd.php");
-    //exit;
+    header("Location: beveiligd.php");
+    exit;
 }
 
 $showAlert = false;
@@ -49,8 +49,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             //    header("Location: userWWreset.php");
             //    exit;
             //} else {
-                header("Location: beveiligd.php");
-                exit;
                 
             //}
         } else {

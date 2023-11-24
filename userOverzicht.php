@@ -3,17 +3,17 @@ require("start.php");
 require("header.php");
 
 if(!isset($_SESSION["username"])) {
-    header("location: login.php");
+    header("location: loginPage.php");
     exit;
 }
 
 require("pdo.php");
 
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['deleted'])) {
-    $query = "SELECT GUID, userName, naam, voornaam, email, passwordReset, active, admin, userPassword FROM users WHERE active =0";
+    $query = "SELECT GUID, username, naam, voornaam, email, passwordReset, active, admin, userPassword FROM users WHERE active =0";
     $deleted = true;
 } else {
-    $query = "SELECT GUID, userName, naam, voornaam, email, passwordReset, active, admin, userPassword FROM users WHERE active =1";
+    $query = "SELECT GUID, username, naam, voornaam, email, passwordReset, active, admin, userPassword FROM users WHERE active =1";
     $deleted = false;
 }
 
