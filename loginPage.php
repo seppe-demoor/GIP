@@ -51,6 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             //} else {
                 header("Location: beveiligd.php");
                 exit;
+                
             //}
         } else {
             //userid en wachtwoord komen niet overeen   
