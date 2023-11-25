@@ -43,14 +43,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['CREATED'] = time();
             $_SESSION['GUID'] = $row['GUID'];
             $_SESSION['admin'] = $row['admin'];
-            
-
-            //if ($row['passwordReset']) {
-            //    header("Location: userWWreset.php");
-            //    exit;
-            //} else {
-                
-            //}
+            if ($row['passwordReset']) {
+                header("Location: userWWreset.php");
+                exit;
+            } else {
+                header("Location: beveiligd.php");
+                exit;
+            }
         } else {
             //userid en wachtwoord komen niet overeen   
             $showAlert = true;

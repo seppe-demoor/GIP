@@ -59,17 +59,20 @@ require('start.php');
         <a class="active" href="homePage.php">HomePage</a>
         
         <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] == true): ?>
-            <a href="facturen.php">facturen</a>
+            
 
             <div class="dropdown">
-                <a href="#" class="dropdown-toggle">Beveiligde admin pagina's</a>
+                <!--<a href="#" class="dropdown-toggle">Beveiligde admin pagina's</a>-->
                 <div class="dropdown-menu">
                     <!--<a href="beveiligd2.php" class="dropdown-item">admin pagina</a>
+                    <a href="facturen.php" class="dropdown-item">facturen</a>
                     <a href="session.php" class="dropdown-item" target="_blank">bekijk session</a>
                     <a href="userNew.php" class="dropdown-item">niewe user</a>
-                    <a href="userResetWWAdmin.php" class="dropdown-item">reset password</a>-->
+                    <a href="userResetWWAdmin.php" class="dropdown-item">reset password</a>
                     <a href="userUpdate.php" class="dropdown-item">update user</a>
-                    <a href="userOverzicht.php" class="dropdown-item">overzicht user</a>
+                    <a href="userOverzicht.php" class="dropdown-item">overzicht user</a>-->
+                    <a href="beveiligd.php" class="dropdown-item">opties</a>
+
                 </div>
             </div>
         <?php endif; ?>        
