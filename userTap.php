@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <?php
-session_start();
 require("start.php");
 require("pdo.php");
 
@@ -13,11 +12,20 @@ if (!isset($_SESSION["username"])) {
 
 require("header.php");
 ?>
-    <ul>
-        <li><button><a href="userOverzicht.php">overzicht user</a></button></li>
-        <li><button><a href="userUpdate.php">update user</a></button></li>
-        <li><button><a href="userNew.php">maak een nieuwe user aan user</a></button></li>
-    </ul>
+    <div>
+        <button><a href="userOverzicht.php">overzicht user</a></button>
+    </div>
+    <div>
+        <button><a href="userOverzicht2.0.php">overzicht2.0 user</a></button>
+    </div>
+    <div>
+        <button><a href="userUpdate.php">update user</a></button>
+    </div>
+    <div>
+        <button><a href="userNew.php">maak een nieuwe user aan user</a></button>
+    </div>
+        
+        
 <?php
 require("footer.php");
 ?>

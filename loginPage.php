@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <?php
-session_start();
 require("start.php");
 
 if (isset($_SESSION['username'])) {

@@ -1,7 +1,3 @@
-<?php
-require('start.php');
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -60,7 +56,6 @@ require('start.php');
         
         <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] == true): ?>
             
-
             <div class="dropdown">
                 <!--<a href="#" class="dropdown-toggle">Beveiligde admin pagina's</a>-->
                 <div class="dropdown-menu">

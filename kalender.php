@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <?php
-session_start();
 require("start.php");
 require("pdo.php");
 
