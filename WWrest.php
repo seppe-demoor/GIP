@@ -11,16 +11,16 @@ if (!isset($_SESSION['username'])) {
 require("pdo.php");
 
 function sendMail($to, $secret, $voornaam, $ww) {
-    $from = "claudiustefan.calin@leerling.go-ao.be";
+    $from = "seppe.demoor@leerling.go-ao.be";
     $subject = "Onderwerp van de mail";
     $message = "Beste $voornaam,
-we hebben je wachwoord gereset.
-Je nieuwe wachwoord is $ww.
-Je moet ook nog deze code ingeven: $secret.
-Klik op onderstaande link:
-https://claudiu.go-ao.be/login%20CC/userWWreset.php?secret=$secret
-Met vriendelijke groeten,
-Admin van de website.";
+                we hebben je wachwoord gereset.
+                Je nieuwe wachwoord is $ww.
+                Je moet ook nog deze code ingeven: $secret.
+                Klik op onderstaande link:
+                https://seppe.go-ao.be/login%20CC/userWWreset.php?secret=$secret
+                Met vriendelijke groeten,
+                Admin van de website.";
 
     if (mail($to, $subject, $message, $from)) {
         echo "Bericht is verzonden";
@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $res = $pdo->prepare($query);
         $res->execute($values);
         sendMail($email, $secret, $voornaam, $wachtwoord);
-        header("Location: useroverzicht.php");
+        header("Location: useroverzicht2.0.php");
         exit;
     } catch (PDOException $e) {
         // Error in de query
