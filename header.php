@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log In</title>
+    <title>Dropdown Menu</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -35,49 +35,81 @@
             color: white;
         }
 
-        /* Additional style for dropdown */
-        .dropdown-menu {
-            background-color: #333;
+        .dropdown {
+            float: left;
+            overflow: hidden;
         }
 
-        .dropdown-item {
+        .dropdown .dropbtn {
+            font-size: 16px;
+            border: none;
+            outline: none;
             color: white;
+            padding: 14px 16px;
+            background-color: inherit;
+            font-family: inherit;
+            margin: 0;
         }
 
-        .dropdown-item:hover {
-            background-color: #555;
+        .navbar a, .dropdown .dropbtn {
+            display: inline-block;
         }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            float: none;
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
     </style>
 </head>
 <body>
 
-    <div class="navbar">
-        <a class="active" href="homePage.php">HomePage</a>
-        
-        <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] == true): ?>
-            
-            <div class="dropdown">
-                <!--<a href="#" class="dropdown-toggle">Beveiligde admin pagina's</a>-->
-                <div class="dropdown-menu">
-                    <!--<a href="beveiligd2.php" class="dropdown-item">admin pagina</a>
-                    <a href="facturen.php" class="dropdown-item">facturen</a>
-                    <a href="session.php" class="dropdown-item" target="_blank">bekijk session</a>
-                    <a href="userNew.php" class="dropdown-item">niewe user</a>
-                    <a href="userResetWWAdmin.php" class="dropdown-item">reset password</a>
-                    <a href="userUpdate.php" class="dropdown-item">update user</a>
-                    <a href="userOverzicht.php" class="dropdown-item">overzicht user</a>-->
-                    <a href="beveiligd.php" class="dropdown-item">opties</a>
+<div class="navbar">
+    <a class="active" href="homePage.php">HomePage</a>
 
-                </div>
+    <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] == true): ?>
+        <div class="dropdown">
+            <button class="dropbtn">Users</button>
+            <div class="dropdown-content">
+                <!--<a href="beveiligd2.php">admin pagina</a>
+                <a href="facturen.php">facturen</a>
+                <a href="session.php" target="_blank">bekijk session</a>-->
+                <a href="userNew.php">niewe user</a>
+                <a href="userResetWWAdmin.php">reset password</a>
+                <a href="userOverzicht2.0.php">overzicht user</a>
+                <a href="beveiligd.php">opties</a>
             </div>
-        <?php endif; ?>        
+        </div>
+    <?php endif; ?>
+    <?php ?>
 
-        <?php if (!isset($_SESSION["admin"])) : ?>
-            <a href="loginPage.php">Login</a>
-        <?php else : ?>
-            <a href="logoutPage.php">Logout</a>
-        <?php endif; ?>
-    </div>
+    <?php if (!isset($_SESSION["admin"])) : ?>
+        <a href="loginPage.php">Login</a>
+    <?php else : ?>
+        <a href="logoutPage.php" class="logout">Logout</a>
+    <?php endif; ?>
+</div>
 
 </body>
 </html>

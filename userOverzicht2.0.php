@@ -204,11 +204,14 @@ require("header.php");
                                 <td><?php echo $row["admin"] ? '✔️' : '❌';?></td>
                                 <td class="actions">
                                     <a href="userUpdate.php?GUID=<?php echo $row['GUID']; ?>">✏️
+                                    <i data-bs-toggle="tooltip" data-bs-placement="top" title="Update user"></i>
                                     </a>
-                                    <i class="bi bi-x-square text-danger fa-2x" 
-                                        style="cursor: pointer;"
-                                        onclick='showModalDelete("<?php echo $row["userName"]; ?> "," <?php echo $row["GUID"]; ?>")'></i>
+                                    <i style="cursor: pointer;" class="bi bi-x-square text-danger fa-2x"
+                                            onclick='showModalDelete("<?php echo $row["userName"]; ?> "," <?php echo $row["GUID"]; ?>")'
+                                            data-bs-toggle="modal" data-bs-target="#DeleteUser"
+                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Delete user">❌</i>
                                     <a href="WWreset.php?GUID=<?php echo $row['GUID']; ?>">🔄
+                                    <i data-bs-toggle="tooltip" data-bs-placement="top" title="restwachtwoord"></i>
                                     </a>
                                 </td>
                             </tr>
