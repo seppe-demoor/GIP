@@ -1,5 +1,5 @@
 <?php
-session_start();
+require("start.php");
 
 if (!isset($_SESSION["username"])) {
     header("Location: loginPage.php");

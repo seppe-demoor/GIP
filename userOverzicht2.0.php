@@ -1,191 +1,58 @@
 <!DOCTYPE html>
-<?php
-require("start.php");
-
-if (!isset($_SESSION['username'])) {
-    //user is reeds aangemeld
-    header("Location: loginPage.php");
-    exit;
-}
-
-require("pdo.php");
-if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['deleted'])) {
-    $query = "SELECT `userID`, `GUID`, `username`, `naam`, `voornaam`, `email`, `admin`
-    FROM `users` 
-    WHERE `active` = 0";
-    $deleted = true;   
-} else {
-    $query = "SELECT `userID`, `GUID`, `username`, `naam`, `voornaam`, `email`, `admin`
-              FROM `users` 
-              WHERE `active` = 1";
-    $deleted = false;
-}
-
-try {
-    $res = $pdo->prepare($query);
-    $res->execute();
-} catch (PDOException $e) {
-    echo "Query error:" . $e;
-    die();
-}
-require("header.php");
-?>
-
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
     <title>User Overview</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #E9E2D6;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            margin-top: 50px;
-            margin-left: 50px;
-            margin-right: 50px;
-        }
-
-        .float-end {
-            float: right;
-        }
-
-        h3 {
-            margin-bottom: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #D9D0C4;
-        }
-
-        .actions {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-        }
-
-        .modal {
-            display: none;
-            background: rgba(0, 0, 0, 0.7);
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        .modal-content h4 {
-            margin-bottom: 10px;
-        }
-
-        .modal-content p {
-            margin-bottom: 20px;
-        }
-
-        .modal-content button {
-            padding: 10px;
-            margin-right: 10px;
-            cursor: pointer;
-        }
-
-        .text-primary {
-            color: #007bff;
-        }
-
-        .text-danger {
-            color: #dc3545;
-        }
-
-        .text-success {
-            color: #28a745;
-        }
-
-        .text-info {
-            color: #17a2b8;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            text-align: center;
-            cursor: pointer;
-            outline: none;
-            color: #fff;
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
-        }
-
-        .btn:hover {
-            background-color: #0056b3;
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-        }
-
-        .btn-danger:hover {
-            background-color: #c82333;
-        }
-
-        .btn-warning {
-            background-color: #ffc107;
-        }
-
-        .btn-warning:hover {
-            background-color: #e0a800;
-        }
-    </style>
+    <style></style>
 </head>
 
 <body>
 
-<div class="container">
+    <?php
+    require("start.php");
+
+    if (!isset($_SESSION["admin"]) && $_SESSION["admin"] == 0) {
+        header("Location: loginPage.php");
+    }
+
+    require("pdo.php");
+
+    if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['deleted'])) {
+        $query = "SELECT `GUID`,`username`,`naam`,`voornaam`,`email`,`admin` FROM `users` WHERE `active` = 0";
+        $deleted = true;
+    } else {
+        $query = "SELECT `GUID`,`username`,`naam`,`voornaam`,`email`,`admin` FROM `users` WHERE `active` = 1";
+        $deleted = false;
+    }
+
+    try {
+        $res = $pdo->prepare($query);
+        $res->execute();
+    } catch (PDOException $e) {
+        echo 'Query error.';
+        die();
+    }
+
+    require("header.php");
+    ?>
+
+    <div class="container mt-5">
         <div class="row">
             <div class="col-sm-12">
                 <span class="float-end">
-                    <?php if ($deleted): ?>
-                        <a href="userOverzicht2.0.php?deleted" class="btn btn-danger">
-                            <i class="bi bi-person-plus-fill fs-2"></i>
-                        </a>
-                    <?php else: ?>
-                        <a href="userNew.php" class="btn btn-primary">
-                            <i class="bi bi-person-plus-fill fs-2"></i> New user
-                        </a>
-                        <a href="userOverzicht2.0.php?deleted" class="btn btn-danger">
-                            <i class="bi bi-person-fill-slash fs-2"></i> Delete user
-                        </a>
+                    <?php if ($deleted) : ?>
+                        <a href="userOverzicht2.0.php">Active Users</a>
+                    <?php else : ?>
+                        <a href="userNew.php">New User</a>
+                        &nbsp;
+                        <a href="userOverzicht2.0.php?deleted">Deleted Users</a>
                     <?php endif; ?>
                 </span>
-                <h3>Overview <?php echo $deleted ? "Deleted" : ""; ?></h3>
-                <table>
+                <h3>User Overview<?php echo $deleted ? " Deleted" : ""; ?></h3>
+                <table class="table">
                     <tr>
                         <th>Username</th>
                         <th>Name</th>
@@ -199,26 +66,23 @@ require("header.php");
                             <tr>
                                 <td><?php echo $row["username"]; ?></td>
                                 <td><?php echo $row["naam"]; ?></td>
-                                <td><?php echo $row["voornaam"] ?></td>
-                                <td><?php echo $row["email"] ?></td>
-                                <td><?php echo $row["admin"] ? '✔️' : '❌';?></td>
-                                <td class="actions">
-                                    <a href="userUpdate.php?GUID=<?php echo $row['GUID']; ?>">✏️
-                                    <i data-bs-toggle="tooltip" data-bs-placement="top" title="Update user"></i>
-                                    </a>
-                                    <i style="cursor: pointer;" class="bi bi-x-square text-danger fa-2x"
-                                            onclick='showModalDelete("<?php echo $row["username"]; ?> "," <?php echo $row["GUID"]; ?>")'
-                                            data-bs-toggle="modal" data-bs-target="#DeleteUser"
-                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Delete user">❌</i>
-                                    <a href="WWreset.php?GUID=<?php echo $row['GUID']; ?>">🔄
-                                    <i data-bs-toggle="tooltip" data-bs-placement="top" title="resetwachtwoord"></i>
-                                    </a>
+                                <td><?php echo $row["voornaam"]; ?></td>
+                                <td><?php echo $row["email"]; ?></td>
+                                <td><?php echo $row["admin"] ? 'Yes' : 'No'; ?></td>
+                                <td>
+                                    <?php if ($deleted) : ?>
+                                        <button class="btn btn-success" onclick='showModalReactivate("<?php echo $row["username"];?>","<?php echo $row["GUID"];?>")'>Reactivate User</button>
+                                    <?php else : ?>
+                                        <a href="userUpdate.php?GUID=<?php echo $row["GUID"]; ?>" class="btn btn-warning">Edit User</a>
+                                        <button class="btn btn-danger" onclick='showModalDelete("<?php echo $row["username"];?>","<?php echo $row["GUID"];?>")'>Delete User</button>
+                                        <a href="resetUser.php?GUID=<?php echo$row["GUID"]; ?>" class="btn btn-info">Reset Password</a>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
                     <?php else : ?>
                         <tr>
-                            <td colspan="6">No data found</td>
+                            <td colspan='6'>No data found</td>
                         </tr>
                     <?php endif; ?>
                 </table>
@@ -226,47 +90,69 @@ require("header.php");
         </div>
     </div>
 
-     <!-- Modal delete user -->
-     <div class="modal fade" id="DeleteUser">
+    <!-- Modal delete user -->
+    <div class="modal" id="DeleteUser">
         <div class="modal-dialog">
             <div class="modal-content">
-           
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h4 class="modal-title">Verwijder gebruiker</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
 
-             <!-- Modal body -->
-             <div class="modal-body">
-                Ben je zeker dat je gebruiker <span id="userDEL"></span> wil verwijderen?
-            </div>
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Delete User</h4>
+                    <button type="button" class="btn-close" data-dismiss="modal"></button>
+                </div>
 
-            <!-- Modal footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Annuleer</button>
-                <button type="button" value="" id="KnopVerwijder" class="btn btn-danger" onclick="deactivateUser(this.value)">Ja verwijder</button>
-            </div>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    Are you sure you want to delete user <span id="userDEL"></span>?
+                </div>
 
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" data-dismiss="modal">Cancel</button>
+                    <button type="button" value="" id="KnopVerwijder" class="btn btn-danger" onclick="deactivateUser(this.value)">Yes, delete</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal reactivate user -->
+    <div class="modal" id="ReactivateUser">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Reactivate User</h4>
+                    <button type="button" class="btn-close" data-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    Are you sure you want to reactivate user <span id="userACT"></span>?
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" data-dismiss="modal">Cancel</button>
+                    <button type="button" value="" id="KnopActivate" class="btn btn-success" onclick="activateUser(this.value)">Yes, reactivate</button>
+                </div>
+
+            </div>
         </div>
     </div>
 
     <script>
+        // Delete user
         function showModalDelete(username, guid) {
             document.getElementById('userDEL').innerHTML = username;
             document.getElementById('KnopVerwijder').value = guid;
-            document.querySelector('.modal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.querySelector('.modal').style.display = 'none';
         }
 
         function deactivateUser(id) {
             let ajx = new XMLHttpRequest();
             ajx.onreadystatechange = function () {
                 if (ajx.readyState == 4 && ajx.status == 200) {
-                    //console.log(ajx.responseText);
                     location.reload();
                 }
             };
@@ -274,11 +160,30 @@ require("header.php");
             ajx.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             ajx.send("GUID=" + id);
         }
+
+        // Reactivate user
+        function showModalReactivate(username, guid) {
+            document.getElementById('userACT').innerHTML = username;
+            document.getElementById('KnopActivate').value = guid;
+        }
+
+        function activateUser(id) {
+            let ajx = new XMLHttpRequest();
+            ajx.onreadystatechange = function () {
+                if (ajx.readyState == 4 && ajx.status == 200) {
+                    location.reload();
+                }
+            };
+            ajx.open("POST", "userActivate.php", true);
+            ajx.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            ajx.send("GUID=" + id);
+        }
     </script>
+
+    <?php
+    require("footer.php");
+    ?>
+
 </body>
 
 </html>
-
-<?php
-require("footer.php");
-?>
