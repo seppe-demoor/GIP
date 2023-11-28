@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <?php
 // Reset voor gebruiker
-require("startphp.php");
+require("start.php");
 
 if (!isset($_SESSION['username'])) {
     // User is reeds aangemeld
-    header("Location: login.php");
+    header("Location: loginPage.php");
     exit;
 }
 require("pdo.php");

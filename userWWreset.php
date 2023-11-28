@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <?php
-require("startphp.php");
+require("start.php");
 require("pdo.php");
 
 $showAlert = false;

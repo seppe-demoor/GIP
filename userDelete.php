@@ -1,37 +1,30 @@
-<!DOCTYPE html>
 <?php
-require("startphp.php");
+require("start.php");
 
-if (!isset($_SESSION['username'])) {
-    // user is already logged in
+if (!isset($_SESSION["username"])) {
     header("Location: login.php");
     exit;
 }
 
-require("pdo.php");
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['GUID'])) {
+    $GUID = $_POST['GUID'];
+    require("pdo.php");
 
-if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['deleted'])) {
-    $query = "SELECT `userID`, `GUID`, `userName`, `naam`, `voornaam`, `email`, `admin`
-    FROM `users` 
-    WHERE `active` = 0";
-    $deleted = true;
-} else {
-    $query = "SELECT `userID`, `GUID`, `userName`, `naam`, `voornaam`, `email`, `admin`
-              FROM `users` 
-              WHERE `active` = 1";
-    $deleted = false;
+    $query = "UPDATE `users` SET `active`=0 WHERE `GUID` = :ID";
+
+    $values = [":ID" => $GUID];
+
+    try
+    {
+        $res = $pdo->prepare($query);
+        $res->execute($values);
+    }
+    catch (PDOException $e)
+    {
+        echo 'Query error.' . $e;
+        die();
+    }
 }
-
-try {
-    $res = $pdo->prepare($query);
-    $res->execute();
-} catch (PDOException $e) {
-    // error in query
-    echo "Query error:" . $e;
-    die();
-}
-
-require("header.php");
 ?>
 
 <html lang="en">
@@ -172,14 +165,14 @@ require("header.php");
             </tr>
             <?php while ($row = $res->fetch(PDO::FETCH_ASSOC)) : ?>
                 <tr>
-                    <td><?php echo $row["userName"]; ?></td>
+                    <td><?php echo $row["username"]; ?></td>
                     <td><?php echo $row["naam"]; ?></td>
                     <td><?php echo $row["voornaam"] ?></td>
                     <td><?php echo $row["email"] ?></td>
                     <td><?php echo $row["admin"] ? '<i class="bi bi-check-square-fill text-success"></i>' : '<i class="bi bi-square"></i>'; ?></td>
                     <td>
                         <!-- Action buttons or links can be added here -->
-                        <a href="#" onclick="showModalDelete('<?php echo $row["userName"]; ?>', '<?php echo $row["GUID"]; ?>')" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#DeleteUser">
+                        <a href="#" onclick="showModalDelete('<?php echo $row["username"]; ?>', '<?php echo $row["GUID"]; ?>')" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#DeleteUser">
                             <i class="bi bi-trash-fill"></i>
                         </a>
                     </td>

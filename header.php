@@ -89,6 +89,7 @@
     <a class="active" href="homePage.php">HomePage</a>
 
     <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] == true): ?>
+        <a href="kalender.php">Kalender</a>
         <div class="dropdown">
             <button class="dropbtn">Users</button>
             <div class="dropdown-content">
@@ -96,9 +97,9 @@
                 <a href="facturen.php">facturen</a>
                 <a href="session.php" target="_blank">bekijk session</a>-->
                 <a href="userNew.php">niewe user</a>
-                <a href="userResetWWAdmin.php">reset password</a>
+                <a href="userWWreset.php">reset password</a>
                 <a href="userOverzicht2.0.php">overzicht user</a>
-                <a href="beveiligd.php">opties</a>
+                
             </div>
         </div>
     <?php endif; ?>

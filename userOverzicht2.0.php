@@ -4,18 +4,18 @@ require("start.php");
 
 if (!isset($_SESSION['username'])) {
     //user is reeds aangemeld
-    header("Location: login.php");
+    header("Location: loginPage.php");
     exit;
 }
 
 require("pdo.php");
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['deleted'])) {
-    $query = "SELECT `userID`, `GUID`, `userName`, `naam`, `voornaam`, `email`, `admin`
+    $query = "SELECT `userID`, `GUID`, `username`, `naam`, `voornaam`, `email`, `admin`
     FROM `users` 
     WHERE `active` = 0";
     $deleted = true;   
 } else {
-    $query = "SELECT `userID`, `GUID`, `userName`, `naam`, `voornaam`, `email`, `admin`
+    $query = "SELECT `userID`, `GUID`, `username`, `naam`, `voornaam`, `email`, `admin`
               FROM `users` 
               WHERE `active` = 1";
     $deleted = false;
@@ -167,19 +167,19 @@ require("header.php");
 
 <body>
 
-    <div class="container">
+<div class="container">
         <div class="row">
             <div class="col-sm-12">
                 <span class="float-end">
                     <?php if ($deleted): ?>
-                        <a href="userOverview.php?deleted" class="btn btn-danger">
+                        <a href="userOverzicht2.0.php?deleted" class="btn btn-danger">
                             <i class="bi bi-person-plus-fill fs-2"></i>
                         </a>
                     <?php else: ?>
                         <a href="userNew.php" class="btn btn-primary">
                             <i class="bi bi-person-plus-fill fs-2"></i> New user
                         </a>
-                        <a href="userOverview.php?deleted" class="btn btn-danger">
+                        <a href="userOverzicht2.0.php?deleted" class="btn btn-danger">
                             <i class="bi bi-person-fill-slash fs-2"></i> Delete user
                         </a>
                     <?php endif; ?>
@@ -197,7 +197,7 @@ require("header.php");
                     <?php if ($res->rowCount() != 0) : ?>
                         <?php while ($row = $res->fetch(PDO::FETCH_ASSOC)) : ?>
                             <tr>
-                                <td><?php echo $row["userName"]; ?></td>
+                                <td><?php echo $row["username"]; ?></td>
                                 <td><?php echo $row["naam"]; ?></td>
                                 <td><?php echo $row["voornaam"] ?></td>
                                 <td><?php echo $row["email"] ?></td>
@@ -207,11 +207,11 @@ require("header.php");
                                     <i data-bs-toggle="tooltip" data-bs-placement="top" title="Update user"></i>
                                     </a>
                                     <i style="cursor: pointer;" class="bi bi-x-square text-danger fa-2x"
-                                            onclick='showModalDelete("<?php echo $row["userName"]; ?> "," <?php echo $row["GUID"]; ?>")'
+                                            onclick='showModalDelete("<?php echo $row["username"]; ?> "," <?php echo $row["GUID"]; ?>")'
                                             data-bs-toggle="modal" data-bs-target="#DeleteUser"
                                             data-bs-toggle="tooltip" data-bs-placement="top" title="Delete user">❌</i>
                                     <a href="WWreset.php?GUID=<?php echo $row['GUID']; ?>">🔄
-                                    <i data-bs-toggle="tooltip" data-bs-placement="top" title="restwachtwoord"></i>
+                                    <i data-bs-toggle="tooltip" data-bs-placement="top" title="resetwachtwoord"></i>
                                     </a>
                                 </td>
                             </tr>
@@ -226,20 +226,28 @@ require("header.php");
         </div>
     </div>
 
-    <div class="modal" id="DeleteUser">
-        <div class="modal-content">
+     <!-- Modal delete user -->
+     <div class="modal fade" id="DeleteUser">
+        <div class="modal-dialog">
+            <div class="modal-content">
+           
+            <!-- Modal Header -->
             <div class="modal-header">
-                <h4 class="modal-title">Delete user</h4>
-                <button type="button" class="btn-close" onclick="closeModal()"></button>
+                <h4 class="modal-title">Verwijder gebruiker</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                Are you sure you want to delete the user <span id="userDEL"></span>?
+
+             <!-- Modal body -->
+             <div class="modal-body">
+                Ben je zeker dat je gebruiker <span id="userDEL"></span> wil verwijderen?
             </div>
+
+            <!-- Modal footer -->
             <div class="modal-footer">
-                <button type="button" class="btn btn-warning" onclick="closeModal()">Cancel</button>
-                <button type="button" class="btn btn-danger" value="" id="KnopVerwijder"
-                        onclick="deactivateUser(this.value)">Yes, delete</button>
+                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Annuleer</button>
+                <button type="button" value="" id="KnopVerwijder" class="btn btn-danger" onclick="deactivateUser(this.value)">Ja verwijder</button>
             </div>
+
         </div>
     </div>
 
@@ -256,13 +264,13 @@ require("header.php");
 
         function deactivateUser(id) {
             let ajx = new XMLHttpRequest();
-            ajx.onreadystatechange= function () {
+            ajx.onreadystatechange = function () {
                 if (ajx.readyState == 4 && ajx.status == 200) {
-                    closeModal();
-                    //location.reload();
+                    //console.log(ajx.responseText);
+                    location.reload();
                 }
             };
-            ajx.open("POST", "confirmDelete.php", true);
+            ajx.open("POST", "userDelete.php", true);
             ajx.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             ajx.send("GUID=" + id);
         }
