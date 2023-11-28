@@ -40,7 +40,7 @@ require("header.php");
         <div class="col-sm-12">
             <h3>Bevestig Verwijderen</h3>
             <p>Weet je zeker dat je de gebruiker "<?php echo $user['username']; ?>" wilt verwijderen?</p>
-            <a href="delete.php?GUID=<?php echo $GUID; ?>" class="btn btn-danger">Verwijderen</a>
+            <a href="Delete.php?GUID=<?php echo $GUID; ?>" class="btn btn-danger">Verwijderen</a>
             <a href="userOverzicht2.0.php" class="btn btn-secondary">Annuleren</a>
         </div>
     </div>

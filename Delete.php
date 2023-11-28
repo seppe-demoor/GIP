@@ -1,5 +1,5 @@
 <?php
-session_start();
+require("start.php")
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['GUID'])) {
     $GUID = $_POST['GUID'];
 
@@ -14,13 +14,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['GUID'])) {
         $stmt->execute($values);
 
 
-        header("Location: useroverzicht.php");
+        header("Location: useroverzicht2.0.php");
         exit();
     } catch (PDOException $e) {
 
         error_log('Query error: ' . $e->getMessage());
 
-        header("Location: useroverzicht.php");
+        header("Location: useroverzicht2.0.php");
         exit();
     }
 }

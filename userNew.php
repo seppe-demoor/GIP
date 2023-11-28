@@ -75,9 +75,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     //creat GUID
     $GUID = sprintf('%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535));
 
-    $query = "INSERT INTO `users` (GUID, userName, naam, voornaam, email, userPassword, admin)
-              VALUES (:ID, :userName, :naam, :voornaam, :email, :userPassword, :adm)";
-    $values = [':ID' => $GUID, ':userName' => $username, ':naam'=> $naam,
+    $query = "INSERT INTO `users` (GUID, username, naam, voornaam, email, userPassword, admin)
+              VALUES (:ID, :username, :naam, :voornaam, :email, :userPassword, :adm)";
+    $values = [':ID' => $GUID, ':username' => $username, ':naam'=> $naam,
                  ':voornaam'=> $voornaam, ':email'=>$email, ':userPassword'=> $password, ':adm'=>$admin];
     try {
     $res = $pdo->prepare($query);

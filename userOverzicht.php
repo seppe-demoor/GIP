@@ -2,32 +2,41 @@
 <?php
 require("start.php");
 
-if (!isset($_SESSION['admin']) || $_SESSION['admin'] == 0)  {
-    header("Location: beveiligd.php");
+if (!isset($_SESSION['username'])) {
+    //user is reeds aangemeld
+    header("Location: loginPage.php");
     exit;
 }
 
 require("pdo.php");
-$query = "SELECT `userID`, `GUID`, `userName`, `naam`, `voornaam`, `email`, `admin`
+if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['deleted'])) {
+    $query = "SELECT `userID`, `GUID`, `username`, `naam`, `voornaam`, `email`, `admin`
+    FROM `users` 
+    WHERE `active` = 0";
+    $deleted = true;   
+} else {
+    $query = "SELECT `userID`, `GUID`, `username`, `naam`, `voornaam`, `email`, `admin`
               FROM `users` 
               WHERE `active` = 1";
-    //values voor de PDO
-    try {
-        $res = $pdo->prepare($query);
-        $res->execute();
-    } catch (PDOException $e) {
-        //error in query
-        echo "Query error:" . $e;
-        die();
-    }
+    $deleted = false;
+}
+
+try {
+    $res = $pdo->prepare($query);
+    $res->execute();
+} catch (PDOException $e) {
+    echo "Query error:" . $e;
+    die();
+}
 require("header.php");
 ?>
+
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overzicht gebruikers</title>
+    <title>User Overview</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -42,6 +51,10 @@ require("header.php");
             margin-right: 50px;
         }
 
+        .float-end {
+            float: right;
+        }
+
         h3 {
             margin-bottom: 20px;
         }
@@ -52,11 +65,8 @@ require("header.php");
             margin-bottom: 20px;
         }
 
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-
         th, td {
+            border: 1px solid #ddd;
             padding: 12px;
             text-align: left;
         }
@@ -104,72 +114,131 @@ require("header.php");
             margin-right: 10px;
             cursor: pointer;
         }
+
+        .text-primary {
+            color: #007bff;
+        }
+
+        .text-danger {
+            color: #dc3545;
+        }
+
+        .text-success {
+            color: #28a745;
+        }
+
+        .text-info {
+            color: #17a2b8;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            text-align: center;
+            cursor: pointer;
+            outline: none;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
     </style>
 </head>
-<div class="container mt-5">
+
+<body>
+
+<div class="container">
         <div class="row">
             <div class="col-sm-12">
                 <span class="float-end">
                     <?php if ($deleted): ?>
-                        <a href="userOverzicht.php"><i class="bi bi-person-heart fs-2 text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Actieve gebruikers"></i></a>
+                        <a href="userOverzicht2.0.php?deleted" class="btn btn-danger">
+                            <i class="bi bi-person-plus-fill fs-2"></i>
+                        </a>
                     <?php else: ?>
-                        <a href="userNew.php"><i class="bi bi-person-plus-fill fs-2 text success" data-bs-toggle="tooltip" data-bs-placement="top" title="Nieuwe gebruiker"></i></a>
-                        &nbsp;
-                        <a href="userOverzicht.php?deleted"><i class="bi bi-person-fill-slash fs-2 text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Verwijderde gebruikers"></i></a>
+                        <a href="userNew.php" class="btn btn-primary">
+                            <i class="bi bi-person-plus-fill fs-2"></i> New user
+                        </a>
+                        <a href="userOverzicht2.0.php?deleted" class="btn btn-danger">
+                            <i class="bi bi-person-fill-slash fs-2"></i> Delete user
+                        </a>
                     <?php endif; ?>
                 </span>
-                <h3>Overzicht
-                    <?php if ($deleted) echo " verwijderde "; ?>
-                    gebruikers
-                </h3>
-                <table class="table table-hover table-striped">
+                <h3>Overview <?php echo $deleted ? "Deleted" : ""; ?></h3>
+                <table>
                     <tr>
-                        <th>Gebruikersnaam</th>
-                        <th>Naam</th>
-                        <th>Voornaam</th>
+                        <th>Username</th>
+                        <th>Name</th>
+                        <th>First Name</th>
                         <th>Email</th>
                         <th>Admin</th>
-                        <th>Acties</th>
+                        <th>Actions</th>
                     </tr>
-                    <?php if($res->rowCount() != 0) : ?>
-                        <?php while($row = $res->fetch(PDO::FETCH_ASSOC)) : ?>
+                    <?php if ($res->rowCount() != 0) : ?>
+                        <?php while ($row = $res->fetch(PDO::FETCH_ASSOC)) : ?>
                             <tr>
                                 <td><?php echo $row["username"]; ?></td>
                                 <td><?php echo $row["naam"]; ?></td>
-                                <td><?php echo $row["voornaam"]; ?></td>
-                                <td><?php echo $row["email"]; ?></td>
-                                <td><?php echo $row["admin"]? '<i class="bi bi-check-square-fill text-success"></i>' : '<i class="bi bi-square"></i>'; ?></td>
-                                <td>
-                                    <?php if($deleted): ?>
-                                        <i id="Activate" class="bi bi-person-up text-success fs-2" onclick='showModalReactivate("<?php echo $row["username"];?>","<?php echo $row["GUID"];?>")' data-bs-toggle="modal" data-bs-target="#ReactivateUser" data-bs-toggle="tooltip" data-bs-placement="top" title="Gebruiker terug activeren"></i>
-                                    <?php else: ?>                                    
-                                        <a href="userUpdate.php?GUID=<?php echo $row["GUID"]; ?>"><i class="bi bi-pencil-square text-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit gebruiker"></i></a>
-                                        <i id="Delete" class="bi bi-x-square text-danger" onclick='showModalDelete("<?php echo $row["username"];?>","<?php echo $row["GUID"];?>")' data-bs-toggle="modal" data-bs-target="#DeleteUser" data-bs-toggle="tooltip" data-bs-placement="top" title="Verwijder gebruiker"></i>
-                                        <a href="userWWreset.php?GUID=<?php echo$row["GUID"]; ?>"><i class="bi bi-arrow-clockwise text-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Reset wachtwoord"></i></a>
-                                    <?php endif; ?>
+                                <td><?php echo $row["voornaam"] ?></td>
+                                <td><?php echo $row["email"] ?></td>
+                                <td><?php echo $row["admin"] ? '✔️' : '❌';?></td>
+                                <td class="actions">
+                                    <a href="userUpdate.php?GUID=<?php echo $row['GUID']; ?>">✏️
+                                    <i data-bs-toggle="tooltip" data-bs-placement="top" title="Update user"></i>
+                                    </a>
+                                    <i style="cursor: pointer;" class="bi bi-x-square text-danger fa-2x"
+                                            onclick='showModalDelete("<?php echo $row["username"]; ?> "," <?php echo $row["GUID"]; ?>")'
+                                            data-bs-toggle="modal" data-bs-target="#DeleteUser"
+                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Delete user">❌</i>
+                                    <a href="WWreset.php?GUID=<?php echo $row['GUID']; ?>">🔄
+                                    <i data-bs-toggle="tooltip" data-bs-placement="top" title="resetwachtwoord"></i>
+                                    </a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
-                    <?php else :?>
-                        <tr><td colspan='6'>Geen gegevens gevonden</td></tr>
+                    <?php else : ?>
+                        <tr>
+                            <td colspan="6">No data found</td>
+                        </tr>
                     <?php endif; ?>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- Modal delete user -->
-    <div class="modal fade" id="DeleteUser">
+     <!-- Modal delete user -->
+     <div class="modal fade" id="DeleteUser">
         <div class="modal-dialog">
             <div class="modal-content">
-
+           
             <!-- Modal Header -->
             <div class="modal-header">
                 <h4 class="modal-title">Verwijder gebruiker</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            <!-- Modal body -->
-            <div class="modal-body">
+             <!-- Modal body -->
+             <div class="modal-body">
                 Ben je zeker dat je gebruiker <span id="userDEL"></span> wil verwijderen?
             </div>
 
@@ -179,41 +248,18 @@ require("header.php");
                 <button type="button" value="" id="KnopVerwijder" class="btn btn-danger" onclick="deactivateUser(this.value)">Ja verwijder</button>
             </div>
 
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal reactivate user -->
-    <div class="modal fade" id="ReactivateUser">
-        <div class="modal-dialog">
-            <div class="modal-content">
-
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h4 class="modal-title">Gebruiker terug activeren</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <!-- Modal body -->
-            <div class="modal-body">
-                Ben je zeker dat je gebruiker <span id="userACT"></span> wil heractiveren?
-            </div>
-
-            <!-- Modal footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Annuleer</button>
-                <button type="button" value="" id="KnopActivate" class="btn btn-success" onclick="activateUser(this.value)">Ja heractiveer</button>
-            </div>
-
-            </div>
         </div>
     </div>
 
     <script>
-        //Deleten van een user
         function showModalDelete(username, guid) {
             document.getElementById('userDEL').innerHTML = username;
             document.getElementById('KnopVerwijder').value = guid;
+            document.querySelector('.modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.querySelector('.modal').style.display = 'none';
         }
 
         function deactivateUser(id) {
@@ -228,27 +274,11 @@ require("header.php");
             ajx.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             ajx.send("GUID=" + id);
         }
-
-        
-        //Heractiveren van een user
-        function showModalReactivate(username, guid) {
-            document.getElementById('userACT').innerHTML = username;
-            document.getElementById('KnopActivate').value = guid;
-        }
-
-        function activateUser(id) {
-            let ajx = new XMLHttpRequest();
-            ajx.onreadystatechange = function () {
-                if (ajx.readyState == 4 && ajx.status == 200) {
-                    //console.log(ajx.responseText);
-                    location.reload();
-                }
-            };
-            ajx.open("POST", "userActivate.php", true);
-            ajx.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            ajx.send("GUID=" + id);
-        }
     </script>
+</body>
+
+</html>
+
 <?php
 require("footer.php");
 ?>
