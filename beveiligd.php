@@ -11,11 +11,5 @@ if (!isset($_SESSION["username"])) {
 }
 
 require("header.php");
-?>
-  <div>
-      <a href="kalender.php">Kalender</a>
-      <a href="userTap.php">overzicht user</a>
-  </div>
-<?php
 require("footer.php");
 ?>
