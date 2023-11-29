@@ -98,7 +98,7 @@
     <a class="active" href="homePage.php">HomePage</a>
 
     <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] == true): ?>
-            <a href="userOverzicht2.0.php">overzicht user</a>
+            <a href="userOverzicht.php">overzicht user</a>
         <!--<div class="dropdown">
             <button class="dropbtn">Users</button>
             <div class="dropdown-content">
