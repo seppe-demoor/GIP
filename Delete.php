@@ -14,13 +14,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['GUID'])) {
         $stmt->execute($values);
 
 
-        header("Location: useroverzicht2.0.php");
+        header("Location: useroverzicht.php");
         exit();
     } catch (PDOException $e) {
 
         error_log('Query error: ' . $e->getMessage());
 
-        header("Location: useroverzicht2.0.php");
+        header("Location: useroverzicht.php");
         exit();
     }
 }

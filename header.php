@@ -12,7 +12,7 @@
         integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
         crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <title>Dropdown Menu</title>
+    <title>Dashboard</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -30,7 +30,6 @@
             float: left;
             display: block;
             color: white;
-            text-align: center;
             padding: 14px 16px;
             text-decoration: none;
         }
@@ -52,7 +51,8 @@
     <a class="active" href="homePage.php">HomePage</a>
 
     <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] == true): ?>
-            <a href="userOverzicht.php">overzicht user</a>
+            <a href="userOverzicht.php">overzicht gebruikers</a>
+            <a href="countryOverzicht.php">overzicht landen</a>
         <!--<div class="dropdown">
             <button class="dropbtn">Users</button>
             <div class="dropdown-content">

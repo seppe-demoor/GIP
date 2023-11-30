@@ -24,11 +24,11 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET["GUID"])) {
     catch (PDOException $e) 
     {
         error_log('Error fetching user data: ' . $e);
-        header("Location: useroverzicht2.0.php");
+        header("Location: useroverzicht.php");
         exit();
     }
 } else {
-    header("Location: userOverzicht2.0.php");
+    header("Location: userOverzicht.php");
     exit();
 }
 
@@ -41,7 +41,7 @@ require("header.php");
             <h3>Bevestig Verwijderen</h3>
             <p>Weet je zeker dat je de gebruiker "<?php echo $user['username']; ?>" wilt verwijderen?</p>
             <a href="Delete.php?GUID=<?php echo $GUID; ?>" class="btn btn-danger">Verwijderen</a>
-            <a href="userOverzicht2.0.php" class="btn btn-secondary">Annuleren</a>
+            <a href="userOverzicht.php" class="btn btn-secondary">Annuleren</a>
         </div>
     </div>
 </div>

@@ -3,7 +3,7 @@
     require("start.php");
 
     if (!isset($_SESSION["admin"]) && $_SESSION["admin"] == 0) {
-        header("Location: login.php");
+        header("Location: loginPage.php");
     }
 
     require("pdo.php");
@@ -172,6 +172,3 @@
             ajx.send("GUID=" + id);
         }
     </script>
-<?php
-    require("footer.php");
-?>
