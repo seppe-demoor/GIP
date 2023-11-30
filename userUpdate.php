@@ -16,7 +16,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               SET username = :username, naam = :naam, voornaam = :voornaam, email = :email, `admin` = :adm 
               WHERE `GUID` = :GUID";
     $values = [":GUID" => $GUID, ":username" => $username, "naam" => $naam, "voornaam" => $voornaam, "email" => $email, "adm" => $admin];
-    var_dump($values);
     // execute query
 
     try {
@@ -49,7 +48,6 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["GUID"])) {
 }
 
 
-var_dump($GUID);
 require("header.php");
 ?>
     <div class="container mt-5">

@@ -10,7 +10,7 @@ We hebben je wachtwoord gereset.
 Je nieuwe wachtwoord is $ww.
 Je moet ook nog deze code ingeven: $secret.
 Klik op onderstaande link:
-http://brieuc.go-ao.be/Oefeningen/06/userReset.php?secret=$secret
+http://seppe.go-ao.be/GIP/resetUser.php?secret=$secret
 
 Met vriendelijke groeten,
 Admin van de website.";
@@ -36,7 +36,7 @@ Admin van de website.";
         $email = $_POST["email"];
         $secret = rand(10000000,99999999);
 
-        $query = "UPDATE `users` SET `userPassword` = ':password', `passwordReset` = 1, `secret` = :secr WHERE `GUID` = :ID";
+        $query = "UPDATE `users` SET `userPassword` = :password, `passwordReset` = 1, `secret` = :secr WHERE `GUID` = :ID";
         $values = [":ID" => $GUID, ":password" => $hash, ":secr" => $secret];
         var_dump($values);
         try
@@ -71,7 +71,7 @@ Admin van de website.";
         }
         $row = $res->fetch(PDO::FETCH_ASSOC);
     } else {
-        header("Location: userOverzicht2.0.php");
+        header("Location: userOverzicht.php");
         exit;
     }
 
