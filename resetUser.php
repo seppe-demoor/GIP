@@ -38,13 +38,13 @@ Admin van de website.";
 
         $query = "UPDATE `users` SET `userPassword` = ':password', `passwordReset` = 1, `secret` = :secr WHERE `GUID` = :ID";
         $values = [":ID" => $GUID, ":password" => $hash, ":secr" => $secret];
-
+        var_dump($values);
         try
         {
             $res = $pdo->prepare($query);
             $res->execute($values);
             sendMail($email, $secret, $voornaam, $password);
-            header("Location: userOverzicht2.0.php");
+            header("Location: userOverzicht.php");
             exit;
         }
         catch (PDOException $e)
@@ -92,7 +92,7 @@ Admin van de website.";
             </div>
             <br>
             <button type="submit" class="btn btn-danger btn-lg">Reset</button>
-            <input type="hidden" name="guid" value="<?php echo $GUID; ?>">
+            <input type="hidden" name="GUID" value="<?php echo $GUID; ?>">
             <input type="hidden" name="email" value="<?php echo $row["email"]; ?>">
             <input type="hidden" name="voornaam" value="<?php echo $row["voornaam"]; ?>">
             </form>

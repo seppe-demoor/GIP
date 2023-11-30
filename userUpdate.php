@@ -3,9 +3,6 @@
 require("start.php");
 
 require("pdo.php");
-$GUID = $_GET["GUID"];
-/*var_dump($GUID);
-die();*/
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $GUID = $_POST["GUID"];
@@ -18,8 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $query = "UPDATE `users` 
               SET username = :username, naam = :naam, voornaam = :voornaam, email = :email, `admin` = :adm 
               WHERE `GUID` = :GUID";
-    $values = [
-        ":GUID" => $GUID];
+    $values = [":GUID" => $GUID, ":username" => $username, "naam" => $naam, "voornaam" => $voornaam, "email" => $email, "adm" => $admin];
     var_dump($values);
     // execute query
 
@@ -35,23 +31,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-/* if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["GUID"])) {
+if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["GUID"])) {
     $GUID = $_GET["GUID"];
+    $query = "SELECT * FROM users WHERE GUID = :GUID";
+    $values = ['GUID' => $GUID];
+    try {
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($values);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo 'Query error: ' . $e->getMessage();
+        die();
+    }
 } else {
     header("Location: userOverzicht.php");
     exit;
-} */
-$query = "SELECT * FROM users WHERE GUID = :GUID";
-try {
-    $stmt = $pdo->prepare($query);
-    $stmt->execute(['GUID' => $GUID]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    echo 'Query error: ' . $e->getMessage();
-    die();
 }
 
 
+var_dump($GUID);
 require("header.php");
 ?>
     <div class="container mt-5">
@@ -80,7 +78,7 @@ require("header.php");
                         <label class="form-check-label" for="flexSwitchCheckDefault">Admin</label>
                     </div>
                     <br>
-                    <input type="hidden" name="guid" value="<?php echo $GUID; ?>">
+                    <input type="hidden" name="GUID" value="<?php echo $GUID; ?>">
                     <button type="submit" class="btn btn-success">Gebruiker updaten</button>
                 </form>
             </div>
