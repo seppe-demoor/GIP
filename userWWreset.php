@@ -8,10 +8,10 @@ $showAlert = false;
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password1 = $_POST["password1"];
     $password2 = $_POST["password2"];
-    $secret = trim($_POST["secrete"]);
+    $secret = trim($_POST["secret"]);
     $GUID = $_SESSION["GUID"];
 
-    $query = "SELECT `secrete` FROM `users` WHERE `GUID` = :ID";
+    $query = "SELECT `secret` FROM `users` WHERE `GUID` = :ID";
     $values = [':ID' => $GUID];
 
     try {
@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     $row = $res->fetch(PDO::FETCH_ASSOC);
 
-    if ($row["secrete"] == $secret) {
+    if ($row["secret"] == $secret) {
         // secret is OK
         if ($password1 === $password2) {
             $password = password_hash($password1, PASSWORD_DEFAULT);
@@ -52,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['secret'])) {
-    $secret = $_GET['secrete'];
+    $secret = $_GET['secret'];
 }
 require("header.php");
 ?>
@@ -148,8 +148,8 @@ require("header.php");
                         <input type="password" class="form-control" id="Password2" name="password2" required>
                     </div>
                     <div class="form-group">
-                        <label for="Secrete" class="form-label">Geef je code in vanuit je email</label>
-                        <input type="text" class="form-control" id="Secrete" name="secrete" value="<?php echo isset($secret) ? $secret : "" ?>" required>
+                        <label for="secret" class="form-label">Geef je code in vanuit je email</label>
+                        <input type="text" class="form-control" id="secret" name="secret" value="<?php echo isset($secret) ? $secret : "" ?>" required>
                     </div>
                     <button type="submit" class="btn btn-success">Reset</button>
                 </form>
