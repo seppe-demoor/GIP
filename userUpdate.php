@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $naam = trim($_POST["naam"]);
     $voornaam =trim($_POST["voornaam"]);
     $email = trim($_POST["email"]);
-    $admin = isset($_POST["admin"]) ? 1 : 0;
+    $admin = isset($_POST["admin"]) && $_POST["admin"] == "on" ? 1 : 0;
 
     $query = "UPDATE `users` 
               SET username = :username, naam = :naam, voornaam = :voornaam, email = :email, `admin` = :adm 
@@ -72,8 +72,8 @@ require("header.php");
                         <input type="email" class="form-control" id="Email" name="email" required value="<?php echo $user['email']; ?>">
                     </div>
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" />
-                        <label class="form-check-label" for="flexSwitchCheckDefault">Admin</label>
+                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" name="admin" <?php echo $user['admin'] ? 'checked' : ''; ?> />
+                        <label class="form-check-label" for="admin">Admin</label>
                     </div>
                     <br>
                     <input type="hidden" name="GUID" value="<?php echo $GUID; ?>">

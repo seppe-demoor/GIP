@@ -23,10 +23,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST["email"]);
     $admin = isset($_POST["admin"]) ? 1 : 0;
     $password = password_hash(trim($_POST["password"]), PASSWORD_DEFAULT);
-    $secret = isset($_POST["secret"]) ? trim($_POST["secret"]) : "";
+    $secret = isset($_POST["secret"]) ? trim($_POST["secret"]) : "0";  // Set secret to 0 if not provided
 
-
-    //creat GUID
+    //create GUID
     $GUID = sprintf('%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535));
 
     $query = "INSERT INTO `users` (GUID, username, naam, voornaam, email, userPassword, admin, secret)
@@ -35,8 +34,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ':voornaam'=> $voornaam, ':email'=>$email, ':userPassword'=> $password, ':adm'=>$admin, ':secret' => $secret];
 
     try {
-    $res = $pdo->prepare($query);
-    $res->execute($values);
+        $res = $pdo->prepare($query);
+        $res->execute($values);
     } catch (PDOException $e) {
         //error in query
         echo "Query error:" . $e;
@@ -44,6 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     header("Location: userOverzicht.php");
 }
+
 require("header.php");
 ?>
     <div class="container mt-5">
@@ -71,8 +71,8 @@ require("header.php");
                         <input type="password" class="form-control" id="Password" name="password" required>
                     </div>
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" name="admin" />
-                        <label class="form-check-label" for="flexSwitchCheckDefault">Admin</label>
+                        <input class="form-check-input" type="checkbox" role="switch" id="admin" name="admin" />
+                        <label class="form-check-label" for="admin">Admin</label>
                     </div>
                     <br>
                     <button type="submit" class="btn btn-success">Gebruiker aanmaken</button>
