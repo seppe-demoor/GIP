@@ -36,7 +36,7 @@
                     <?php if ($deleted): ?>
                         <a href="countryOverzicht.php"><i class="bi bi-person-heart fs-2 text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Actieve gebruikers"></i></a>
                     <?php else: ?>
-                        <a href="countryNew.php"><i class="bi bi-person-plus-fill fs-2 text success" data-bs-toggle="tooltip" data-bs-placement="top" title="Nieuwe gebruiker"></i></a>
+                        <a href="counrtyNew.php"><i class="bi bi-person-plus-fill fs-2 text success" data-bs-toggle="tooltip" data-bs-placement="top" title="Nieuwe gebruiker"></i></a>
                         &nbsp;
                         <a href="countryOverzicht.php?deleted"><i class="bi bi-person-fill-slash fs-2 text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Verwijderde gebruikers"></i></a>
                     <?php endif; ?>

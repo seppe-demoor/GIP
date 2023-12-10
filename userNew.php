@@ -12,7 +12,7 @@
 require("start.php");
 if (!isset($_SESSION['username'])) {
     //user is reeds aangemeld
-    header("Location: login.php");
+    header("Location: loginPage.php");
     exit;
 }
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
