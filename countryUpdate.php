@@ -60,19 +60,19 @@ require("header.php");
                     </div>
                     <div class="mb-3">
                         <label for="tax_rate" class="form-label">tax_rate</label>
-                        <input type="text" class="form-control" id="tax_rate" name="tax_rate" required value="<?php echo $country['tax_rate']; ?>">
+                        <input type="text" class="form-control" id="tax_rate" name="tax_rate" maxlength="2" required value="<?php echo $country['tax_rate']; ?>">
                     </div>
                     <div class="mb-3">
                         <label for="currency" class="form-label">currency</label>
-                        <input type="text" class="form-control" id="currency" name="currency" required value="<?php echo $country['currency']; ?>">
+                        <input type="text" class="form-control" id="currency" name="currency" maxlength="3" required value="<?php echo $country['currency']; ?>">
                     </div>
                     <div class="mb-3">
                         <label for="code" class="form-label">code</label>
-                        <input type="text" class="form-control" id="code" name="code" required value="<?php echo $country['code']; ?>">
+                        <input type="text" class="form-control" id="code" name="code" maxlength="2" required value="<?php echo $country['code']; ?>">
                     </div>
                     <div class="mb-3">
                         <label for="iso_code" class="form-label">iso_code</label>
-                        <input type="text" class="form-control" id="iso_code" name="iso_code" required value="<?php echo $country['iso_code']; ?>">
+                        <input type="text" class="form-control" id="iso_code" name="iso_code" maxlength="3" required value="<?php echo $country['iso_code']; ?>">
                     </div>
                     <br>
                     <input type="hidden" name="id" value="<?php echo $id; ?>">
@@ -83,6 +83,3 @@ require("header.php");
             </div>
         </div>
     </div>
-<?php
-require("footer.php");
-?>

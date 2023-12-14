@@ -146,12 +146,16 @@ require("header.php");
                     </div>
 
                         <div>
-                            <label for="Password" class="form-label">password</label>
+                            <label for="Password" class="form-label">Password:</label>
                             <input type="password" class="form-control" id="Password" name="password" required>
-                        </div>
-                        <button type="submit" class="btn" name="secure">Login</button>
+                            <div class="float-start">
                             <input class="form-check-input" type="checkbox" id="laatzien" onchange="wwcheck()">
-                            <label class="form-check-label" for="laatzien">toon wachtwoord</label>
+                            <label class="form-check-label" for="laatzien">Toon wachtwoord</label>
+                            </div>
+                        </div>
+                        <br>
+                        <br>
+                        <button type="submit" class="btn" name="secure">Login</button>
                     </div>
                 </form>
             </div>
