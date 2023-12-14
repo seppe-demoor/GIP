@@ -103,6 +103,3 @@ Admin van de website.";
         </div>
     </div>
     </div>
-<?php
-require("footer.php");
-?>

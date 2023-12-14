@@ -11,5 +11,4 @@ if (!isset($_SESSION["username"])) {
 }
 
 require("header.php");
-require("footer.php");
 ?>

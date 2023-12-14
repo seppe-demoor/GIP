@@ -32,5 +32,4 @@ require("header.php");
     <div id='calendar'></div>
   </body>
 <?php
-require("footer.php");
 ?>

@@ -168,6 +168,5 @@ require("header.php");
         }
     }
 </script>
-    <?php require("footer.php"); ?>
 </body>
 </html>

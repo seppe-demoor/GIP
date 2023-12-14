@@ -38,4 +38,3 @@ catch (PDOException $e) {
         </div>
     </div>
 
-    <?php require("footer.php"); ?>
