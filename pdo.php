@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /* Host name of the MySQL server. */
 $host = 'yorben.go-ao.be';
 /* MySQL account username. */
@@ -10,7 +11,7 @@ $dbname = 'GIP1_facturatie';
 /* The PDO object. */
 $pdo = NULL;
 /* Connection string, or "data source name". */
-$dsn = 'mysql:host=' . $host . ';dbname=' . $dbname .';charset=utf8';
+$dsn = 'mysql:host=' . $host . ';dbname=' . $dbname . ';charset=utf8';
 // Set options
 $options = array(
     PDO::ATTR_PERSISTENT    => true,
@@ -20,15 +21,24 @@ $options = array(
 );
 /* Connection inside a try/catch block. */
 try
-{  
-   /* PDO object creation. */
-   $pdo = new PDO($dsn, $user, $passwd, $options);
+{
+    /* PDO object creation. */
+    $pdo = new PDO($dsn, $user, $passwd, $options);
 }
 catch (PDOException $e)
 {
-   /* If there is an error, an exception is thrown. */
-   echo 'Database connection failed.';
-   var_dump($e);
-   die();
+    /* If there is an error, an exception is thrown. */
+    echo 'Database connection failed.';
+    var_dump($e);
+    die();
 }
+
+// Using mysqli for an alternative connection
+$conn = new mysqli($host, $user, $passwd, $dbname);
+
+// Check the connection
+if ($conn->connect_error) {
+    die("Cannot connect to the database: " . $conn->connect_error);
+}
+
 ?>
