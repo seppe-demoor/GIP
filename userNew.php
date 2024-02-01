@@ -9,6 +9,8 @@
 <body>
 
 <?php
+require "vendor/autoload.php";
+use Ramsey\Uuid\Uuid;
 require("start.php");
 if (!isset($_SESSION['username'])) {
     //user is reeds aangemeld
@@ -17,6 +19,8 @@ if (!isset($_SESSION['username'])) {
 }
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     require("pdo.php");
+    $UserID = Uuid::uuid4();
+    //printf("ID example: %s", $UserID->toString());
     $username = trim($_POST["username"]);
     $naam = trim($_POST["naam"]);
     $voornaam = trim($_POST["voornaam"]);
@@ -28,9 +32,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     //create GUID
     $GUID = sprintf('%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535));
 
-    $query = "INSERT INTO `users` (GUID, username, naam, voornaam, email, userPassword, admin, secret)
-            VALUES (:ID, :username, :naam, :voornaam, :email, :userPassword, :adm, :secret)";
-    $values = [':ID' => $GUID, ':username' => $username, ':naam'=> $naam,
+    $query = "INSERT INTO `users` (UserID,GUID, username, naam, voornaam, email, userPassword, admin, secret)
+            VALUES (:UserID,:ID, :username, :naam, :voornaam, :email, :userPassword, :adm, :secret)";
+    $values = [':UserID' => $UserID,':ID' => $GUID, ':username' => $username, ':naam'=> $naam,
             ':voornaam'=> $voornaam, ':email'=>$email, ':userPassword'=> $password, ':adm'=>$admin, ':secret' => $secret];
 
     try {
