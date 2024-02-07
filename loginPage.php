@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = trim($_POST["password"]);
 
     //query klaarzetten
-    $query = "SELECT `GUID`,`username`,`userPassword`,`passwordReset`,`admin`,`active` FROM `users` WHERE `username` = :username";
+    $query = "SELECT `id`,`username`,`userPassword`,`passwordReset`,`admin`,`active` FROM `users` WHERE `username` = :username";
     //values voor de pdo
     $values = [':username' => $username];
 
@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($username == $row['username'] && password_verify($password, $row['userPassword'])) {
             $_SESSION["username"] = $username;
             $_SESSION['CREATED'] = time();
-            $_SESSION['GUID'] = $row['GUID'];
+            $_SESSION['id'] = $row['id'];
             $_SESSION['admin'] = $row['admin'];
             if ($row['passwordReset']) {
                 header("Location: userWWreset.php");
