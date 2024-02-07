@@ -1,16 +1,16 @@
 <?php
 require("start.php");
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['GUID'])) {
-    $GUID = $_POST['GUID'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['id'])) {
+    $id = $_POST['id'];
 
     require('pdo.php');
 
-    $query = "UPDATE users SET active = 0 WHERE GUID = :GUID";
-    $values = [':ID' => $GUID];
+    $query = "UPDATE users SET active = 0 WHERE id = :id";
+    $values = [':ID' => $id];
 
     try {
         $stmt = $pdo->prepare($query);
-        $stmt->bindParam(':GUID', $GUID, PDO::PARAM_STR);
+        $stmt->bindParam(':id', $id, PDO::PARAM_STR);
         $stmt->execute($values);
 
 

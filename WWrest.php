@@ -32,13 +32,13 @@ function sendMail($to, $secret, $voornaam, $ww) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $wachtwoord = trim($_POST["password"]);
     $hash = password_hash($wachtwoord, PASSWORD_DEFAULT);
-    $GUID = $_POST['guid'];
+    $id = $_POST['id'];
     $email = $_POST["email"];
     $voornaam = $_POST['voornaam'];
     $secret = rand(10000000, 99999999);
 
-    $query = "UPDATE `users` SET `userPassword` = :pw, `passwordReset` = 1, `secret` = :secr WHERE `GUID` = :ID";
-    $values = [':pw' => $hash, ':ID' => $GUID, ':secr' => $secret];
+    $query = "UPDATE `users` SET `userPassword` = :pw, `passwordReset` = 1, `secret` = :secr WHERE `id` = :ID";
+    $values = [':pw' => $hash, ':ID' => $id, ':secr' => $secret];
 
     try {
         $res = $pdo->prepare($query);
@@ -53,10 +53,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["GUID"])) {
-    $GUID = $_GET["GUID"];
-    $query = "SELECT `naam`, `voornaam`, `email` FROM `users` WHERE `GUID` = :ID";
-    $values = [':ID' => $GUID];
+if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["id"])) {
+    $id = $_GET["id"];
+    $query = "SELECT `naam`, `voornaam`, `email` FROM `users` WHERE `id` = :ID";
+    $values = [':ID' => $id];
 
     try {
         $res = $pdo->prepare($query);
@@ -139,7 +139,7 @@ require("header.php");
                         <label for="Password" class="form-label">Nieuw tijdelijk ww</label>
                         <input type="password" class="form-control" id="Password" name="password" required>
                     </div>
-                    <input type="hidden" value="<?php echo $GUID; ?>" name="guid">
+                    <input type="hidden" value="<?php echo $id; ?>" name="id">
                     <input type="hidden" name="email" value="<?php echo $row["email"]; ?>">
                     <input type="hidden" name="voornaam" value="<?php echo $row["voornaam"]; ?>">
                     <button type="submit" class="btn btn-success">reset</button>

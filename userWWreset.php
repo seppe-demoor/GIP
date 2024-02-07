@@ -9,10 +9,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password1 = $_POST["password1"];
     $password2 = $_POST["password2"];
     $secret = trim($_POST["secret"]);
-    $GUID = $_SESSION["GUID"];
+    $id = $_SESSION["id"];
 
-    $query = "SELECT `secret` FROM `users` WHERE `GUID` = :ID";
-    $values = [':ID' => $GUID];
+    $query = "SELECT `secret` FROM `users` WHERE `id` = :ID";
+    $values = [':ID' => $id];
 
     try {
         $res = $pdo->prepare($query);
@@ -28,8 +28,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // secret is OK
         if ($password1 === $password2) {
             $password = password_hash($password1, PASSWORD_DEFAULT);
-            $query = "UPDATE `users` SET `userPassword` = :pw, `passwordReset` = 0 WHERE `GUID` = :ID";
-            $values = [':pw' => $password, ':ID' => $GUID,];
+            $query = "UPDATE `users` SET `userPassword` = :pw, `passwordReset` = 0 WHERE `id` = :ID";
+            $values = [':pw' => $password, ':ID' => $id,];
 
             try {
                 $res = $pdo->prepare($query);

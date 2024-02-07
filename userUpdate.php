@@ -5,7 +5,7 @@ require("start.php");
 require("pdo.php");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $GUID = $_POST["GUID"];
+    $id = $_POST["id"];
     $username = trim($_POST["username"]);
     $naam = trim($_POST["naam"]);
     $voornaam =trim($_POST["voornaam"]);
@@ -14,8 +14,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $query = "UPDATE `users` 
               SET username = :username, naam = :naam, voornaam = :voornaam, email = :email, `admin` = :adm 
-              WHERE `GUID` = :GUID";
-    $values = [":GUID" => $GUID, ":username" => $username, "naam" => $naam, "voornaam" => $voornaam, "email" => $email, "adm" => $admin];
+              WHERE `id` = :id";
+    $values = [":id" => $id, ":username" => $username, "naam" => $naam, "voornaam" => $voornaam, "email" => $email, "adm" => $admin];
     // execute query
 
     try {
@@ -30,10 +30,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["GUID"])) {
-    $GUID = $_GET["GUID"];
-    $query = "SELECT * FROM users WHERE GUID = :GUID";
-    $values = ['GUID' => $GUID];
+if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["id"])) {
+    $id = $_GET["id"];
+    $query = "SELECT * FROM users WHERE id = :id";
+    $values = ['id' => $id];
     try {
         $stmt = $pdo->prepare($query);
         $stmt->execute($values);
@@ -54,7 +54,7 @@ require("header.php");
         <div class="row">
             <div class="col-sm-6">
             <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>"> 
-            <input type="hidden" name="shop_id" value="<?php echo $user['GUID']; ?>">
+            <input type="hidden" name="shop_id" value="<?php echo $user['id']; ?>">
                     <div class="mb-3">
                         <label for="Username" class="form-label">Gebruikersnaam</label>
                         <input type="text" class="form-control" id="Username" name="username" required value="<?php echo $user['username'];?>">
@@ -76,7 +76,7 @@ require("header.php");
                         <label class="form-check-label" for="admin">Admin</label>
                     </div>
                     <br>
-                    <input type="hidden" name="GUID" value="<?php echo $GUID; ?>">
+                    <input type="hidden" name="id" value="<?php echo $id; ?>">
                     <button type="submit" class="btn btn-success">Gebruiker updaten</button>
                 </form>
             </div>

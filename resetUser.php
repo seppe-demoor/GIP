@@ -32,12 +32,12 @@ Admin van de website.";
     if($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = trim($_POST["password"]);
         $hash = password_hash($password, PASSWORD_DEFAULT);
-        $GUID = $_POST["GUID"];
+        $id = $_POST["id"];
         $email = $_POST["email"];
         $secret = rand(10000000,99999999);
 
-        $query = "UPDATE `users` SET `userPassword` = :password, `passwordReset` = 1, `secret` = :secr WHERE `GUID` = :ID";
-        $values = [":ID" => $GUID, ":password" => $hash, ":secr" => $secret];
+        $query = "UPDATE `users` SET `userPassword` = :password, `passwordReset` = 1, `secret` = :secr WHERE `id` = :ID";
+        $values = [":ID" => $id, ":password" => $hash, ":secr" => $secret];
         var_dump($values);
         try
         {
@@ -54,10 +54,10 @@ Admin van de website.";
         }
     }
     
-    if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["GUID"])) {
-        $GUID = $_GET["GUID"];
-        $query = "SELECT `naam`,`voornaam`,`email` FROM `users` WHERE `GUID` = :ID";
-        $values = [':ID' => $GUID];
+    if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["id"])) {
+        $id = $_GET["id"];
+        $query = "SELECT `naam`,`voornaam`,`email` FROM `users` WHERE `id` = :ID";
+        $values = [':ID' => $id];
     
         try
         {
@@ -92,7 +92,7 @@ Admin van de website.";
             </div>
             <br>
             <button type="submit" class="btn btn-danger btn-lg">Reset</button>
-            <input type="hidden" name="GUID" value="<?php echo $GUID; ?>">
+            <input type="hidden" name="id" value="<?php echo $id; ?>">
             <input type="hidden" name="email" value="<?php echo $row["email"]; ?>">
             <input type="hidden" name="voornaam" value="<?php echo $row["voornaam"]; ?>">
             </form>

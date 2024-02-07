@@ -9,10 +9,10 @@
     require("pdo.php");
 
     if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['deleted'])) {
-        $query = "SELECT `GUID`,`username`,`naam`,`voornaam`,`email`,`admin` FROM `users` WHERE `active` = 0";
+        $query = "SELECT `id`,`username`,`naam`,`voornaam`,`email`,`admin` FROM `users` WHERE `active` = 0";
         $deleted = true;
     } else {
-        $query = "SELECT `GUID`,`username`,`naam`,`voornaam`,`email`,`admin` FROM `users` WHERE `active` = 1";
+        $query = "SELECT `id`,`username`,`naam`,`voornaam`,`email`,`admin` FROM `users` WHERE `active` = 1";
         $deleted = false;
     }
 
@@ -64,11 +64,11 @@
                                 <td><?php echo $row["admin"]? '<i class="bi bi-check-square-fill text-success"></i>' : '<i class="bi bi-square"></i>'; ?></td>
                                 <td>
                                     <?php if($deleted): ?>
-                                        <i id="Activate" class="bi bi-person-up text-success fs-2" onclick='showModalReactivate("<?php echo $row["username"];?>","<?php echo $row["GUID"];?>")' data-bs-toggle="modal" data-bs-target="#ReactivateUser" data-bs-toggle="tooltip" data-bs-placement="top" title="Gebruiker terug activeren"></i>
+                                        <i id="Activate" class="bi bi-person-up text-success fs-2" onclick='showModalReactivate("<?php echo $row["username"];?>","<?php echo $row["id"];?>")' data-bs-toggle="modal" data-bs-target="#ReactivateUser" data-bs-toggle="tooltip" data-bs-placement="top" title="Gebruiker terug activeren"></i>
                                     <?php else: ?>                                    
-                                        <a href="userUpdate.php?GUID=<?php echo $row["GUID"]; ?>"><i class="bi bi-pencil-square text-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit gebruiker"></i></a>
-                                        <i id="Delete" class="bi bi-x-square text-danger" onclick='showModalDelete("<?php echo $row["username"];?>","<?php echo $row["GUID"];?>")' data-bs-toggle="modal" data-bs-target="#DeleteUser" data-bs-toggle="tooltip" data-bs-placement="top" title="Verwijder gebruiker"></i>
-                                        <a href="resetUser.php?GUID=<?php echo$row["GUID"]; ?>"><i class="bi bi-arrow-clockwise text-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Reset wachtwoord"></i></a>
+                                        <a href="userUpdate.php?id=<?php echo $row["id"]; ?>"><i class="bi bi-pencil-square text-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit gebruiker"></i></a>
+                                        <i id="Delete" class="bi bi-x-square text-danger" onclick='showModalDelete("<?php echo $row["username"];?>","<?php echo $row["id"];?>")' data-bs-toggle="modal" data-bs-target="#DeleteUser" data-bs-toggle="tooltip" data-bs-placement="top" title="Verwijder gebruiker"></i>
+                                        <a href="resetUser.php?id=<?php echo$row["id"]; ?>"><i class="bi bi-arrow-clockwise text-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Reset wachtwoord"></i></a>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -134,9 +134,9 @@
 
     <script>
         //Deleten van een user
-        function showModalDelete(username, guid) {
+        function showModalDelete(username, uuid) {
             document.getElementById('userDEL').innerHTML = username;
-            document.getElementById('KnopVerwijder').value = guid;
+            document.getElementById('KnopVerwijder').value = uuid;
         }
 
         function deactivateUser(id) {
@@ -149,14 +149,14 @@
             };
             ajx.open("POST", "userDelete.php", true);
             ajx.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            ajx.send("GUID=" + id);
+            ajx.send("id=" + id);
         }
 
         
         //Heractiveren van een user
-        function showModalReactivate(username, guid) {
+        function showModalReactivate(username, uuid) {
             document.getElementById('userACT').innerHTML = username;
-            document.getElementById('KnopActivate').value = guid;
+            document.getElementById('KnopActivate').value = uuid;
         }
 
         function activateUser(id) {
@@ -169,6 +169,6 @@
             };
             ajx.open("POST", "userActivate.php", true);
             ajx.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            ajx.send("GUID=" + id);
+            ajx.send("id=" + id);
         }
     </script>

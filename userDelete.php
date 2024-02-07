@@ -5,13 +5,13 @@ if (!isset($_SESSION["username"])) {
     exit;
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['GUID'])) {
-    $GUID = $_POST['GUID'];
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id'])) {
+    $id = $_POST['id'];
     require("pdo.php");
 
-    $query = "UPDATE `users` SET `active`=0 WHERE `GUID` = :ID";
+    $query = "UPDATE `users` SET `active`=0 WHERE `id` = :ID";
 
-    $values = [":ID" => $GUID];
+    $values = [":ID" => $id];
 
     try
     {
