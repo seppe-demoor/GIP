@@ -4,7 +4,7 @@
 ?>
 <html>
     <head>
-        <title>inhooud session</title>
+        <title>inhoud session</title>
     </head>
     <body>
         <pre>

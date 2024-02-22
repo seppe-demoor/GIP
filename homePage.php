@@ -1,4 +1,6 @@
 <?php
+// homepage.php
+
 require("start.php");
 require("pdo.php");
 
@@ -12,11 +14,13 @@ if (!isset($_SESSION["username"])) {
 
 require("header.php");
 
-// Project Save Logic
+$project_id = null;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["save_project"])) {
     if (isset($_POST["title"]) && isset($_POST["description"])) {
         $title = $_POST["title"];
         $description = $_POST["description"];
+        $project_id = $_POST["project_id"];
+
 
         // Placeholder: Replace with your actual database insert logic
         $stmt = $conn->prepare("INSERT INTO `projects` (`title`, `description`) VALUES (?, ?)");
@@ -25,7 +29,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["save_project"])) {
     }
 }
 
-$schedules = $conn->query("SELECT * FROM `schedule_list`");
+// Project End Logic
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["end_project"])) {
+    if (isset($_POST["title"]) && isset($_POST["description"])) {
+        $title = $_POST["title"];
+        $description = $_POST["description"];
+        $project_id = $_POST["project_id"];
+
+
+        // Placeholder: Replace with your actual database update logic
+        $stmt = $conn->prepare("UPDATE `projects` SET `end_time` = NOW() WHERE `title` = ?");
+        $stmt->bind_param("s", $title);
+        $stmt->execute();
+    }
+}
+
+$schedules = $conn->query("SELECT * FROM `work_time`");
 $projects = $conn->query("SELECT * FROM `projects`");
 $sched_res = [];
 $project_res = [];
@@ -37,18 +56,18 @@ while ($row = $projects->fetch_assoc()) {
 }
 
 while ($row = $schedules->fetch_assoc()) {
-    $row['sdate'] = date("F d, Y h:i A", strtotime($row['start_datetime']));
-    $row['edate'] = date("F d, Y h:i A", strtotime($row['end_datetime']));
+    $row['sdate'] = date("F d, Y h:i A", strtotime($row['start_time']));
+    $row['edate'] = date("F d, Y h:i A", strtotime($row['end_time']));
     $sched_res[$row['id']] = $row;
 }
 
 // Handle Project Selection
 $selectedProject = null;
+$selectedProjectId = null;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
-    $projectId = $_POST["project_id"];
-
+    $selectedProjectId = $_POST["project_id"];
     // Placeholder: Replace with your logic to fetch project details
-    $selectedProject = $conn->query("SELECT * FROM `projects` WHERE `id` = $projectId")->fetch_assoc();
+    $selectedProject = $conn->query("SELECT * FROM `projects` WHERE `id` = $selectedProjectId")->fetch_assoc();
 }
 
 ?>
@@ -139,12 +158,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
                                         <button class="btn btn-danger btn-sm rounded-0" type="button"
                                             onclick="endProject()">End</button>
                                     <?php else : ?>
-                                        <label for="start_datetime" class="control-label">Start Datum</label>
+                                        <label for="start_time" class="control-label">Start Datum</label>
                                         <input type="datetime-local" class="form-control form-control-sm rounded-0"
-                                            name="start_datetime" id="start_datetime" required>
-                                        <label for="end_datetime" class="control-label">Eind Datum</label>
+                                            name="start_time" id="start_time" required>
+                                        <label for="end_time" class="control-label">Eind Datum</label>
                                         <input type="datetime-local" class="form-control form-control-sm rounded-0"
-                                            name="end_datetime" id="end_datetime" required>
+                                            name="end_time" id="end_time" required>
                                     <?php endif; ?>
                                 </div>
                             </form>
@@ -153,7 +172,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
                     <div class="card-footer">
                         <div class="text-center">
                             <button class="btn btn-primary btn-sm rounded-0" type="submit"
-                                form="schedule-form"><i class="fa fa-save"></i> Save</button>
+                                form="schedule-form"><i class="fa fa-save"></i> End</button>
                             <button class="btn btn-default border btn-sm rounded-0" type="reset"
                                 form="schedule-form"><i class="fa fa-reset"></i> Cancel</button>
                         </div>
@@ -181,16 +200,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
                                 name="save_project"><i class="fa fa-save"></i> Save Project</button>
                             <hr>
                             <div class="mb-2">
-                                <label for="projectSelect" class="control-label">Select a Project</label>
-                                <select class="form-control form-control-sm rounded-0" name="project_id"
-                                    id="projectSelect">
-                                    <?php
-                                    foreach ($project_res as $project) {
-                                        echo "<option value='{$project['id']}'>{$project['title']}</option>";
-                                    }
-                                    ?>
-                                </select>
-                            </div>
+                            <label for="projectSelect" class="control-label">Select a Project</label>
+                            <select class="form-control form-control-sm rounded-0" name="project_id" id="projectSelect">
+                                <?php foreach ($project_res as $projectId => $project) : ?>
+                                    <option value="<?= $projectId ?>"><?= $project['title'] ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
                             <button class="btn btn-primary btn-sm rounded-0" type="submit"
                                 name="select_project"><i class="fa fa-check"></i> Select Project</button>
                         </form>
@@ -207,17 +223,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
     if (isset($conn)) $conn->close();
     ?>
     <script>
-        var scheds = <?= json_encode($sched_res) ?>;
+        var scheds = <?php echo json_encode($sched_res); ?>;
 
         function startProject() {
-            // Placeholder: Replace with your logic to handle project start
+    $.ajax({
+        type: 'POST',
+        url: 'save_schedule.php',
+        data: {
+            action: 'start_project',
+            project_id: <?php echo is_null($selectedProjectId) ? 1 : $selectedProjectId ?>,
+            title: $('#title').val(),
+            description: $('#description').val()
+        },
+        success: function (response) {
             alert("Project Started");
+            // You may want to reload the calendar or update it based on the response
+        },
+        error: function (error) {
+            alert("Error starting project");
         }
+    });
+}
 
-        function endProject() {
-            // Placeholder: Replace with your logic to handle project end
+function endProject() {
+    $.ajax({
+        type: 'POST',
+        url: 'save_schedule.php',
+        data: {
+            action: 'end_project',
+            project_id: <?php echo is_null($selectedProjectId) ? 1 : $selectedProjectId ?>,
+            title: $('#title').val(),
+            description: $('#description').val()
+        },
+        success: function (response) {
             alert("Project Ended");
+            // You may want to reload the calendar or update it based on the response
+        },
+        error: function (error) {
+            alert("Error ending project");
         }
+    });
+}
     </script>
     <script src="./js/script.js"></script>
 </body>
