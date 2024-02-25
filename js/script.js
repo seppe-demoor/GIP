@@ -6,7 +6,7 @@ $(function() {
     if (!!scheds) {
         Object.keys(scheds).map(k => {
             var row = scheds[k];
-            events.push({ id: row.id, title: row.title, start: row.start_datetime, end: row.end_datetime });
+            events.push({ id: row.id, title: row.title, start: row.start_time, end: row.end_time });
         });
     }
 
@@ -29,9 +29,9 @@ $(function() {
             var id = info.event.id;
             if (!!scheds[id]) {
                 _details.find('#title').text(scheds[id].title);
-                _details.find('#description').text(scheds[id].description);
-                _details.find('#start').text(new Date(scheds[id].start_datetime).toLocaleString('nl-NL'));
-                _details.find('#end').text(new Date(scheds[id].end_datetime).toLocaleString('nl-NL'));
+                //_details.find('#description').text(scheds[id].description);
+                _details.find('#start').text(new Date(scheds[id].start_time).toLocaleString('nl-NL'));
+                _details.find('#end').text(new Date(scheds[id].end_time).toLocaleString('nl-NL'));
                 _details.find('#edit,#delete').attr('data-id', id);
                 _details.modal('show');
             } else {
@@ -60,8 +60,8 @@ $(function() {
             _form.find('[name="id"]').val(id);
             _form.find('[name="title"]').val(scheds[id].title);
             _form.find('[name="description"]').val(scheds[id].description);
-            _form.find('[name="start_datetime"]').val(new Date(scheds[id].start_datetime).toISOString().slice(0, 16));
-            _form.find('[name="end_datetime"]').val(new Date(scheds[id].end_datetime).toISOString().slice(0, 16));
+            _form.find('[name="start_time"]').val(new Date(scheds[id].start_time).toISOString().slice(0, 16));
+            _form.find('[name="end_time"]').val(new Date(scheds[id].end_time).toISOString().slice(0, 16));
             $('#event-details-modal').modal('hide');
             _form.find('[name="title"]').focus();
         } else {

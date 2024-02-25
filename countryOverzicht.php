@@ -34,11 +34,11 @@
             <div class="col-sm-12">
                 <span class="float-end">
                     <?php if ($deleted): ?>
-                        <a href="countryOverzicht.php"><i class="bi bi-person-heart fs-2 text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Actieve gebruikers"></i></a>
+                        <a href="countryOverzicht.php"><i class="bi bi-heart-fill fs-2 text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Actieve landen"></i></a>
                     <?php else: ?>
-                        <a href="counrtyNew.php"><i class="bi bi-person-plus-fill fs-2 text success" data-bs-toggle="tooltip" data-bs-placement="top" title="Nieuwe gebruiker"></i></a>
+                        <a href="counrtyNew.php"><i class="bi bi-plus-circle fs-3 text success" data-bs-toggle="tooltip" data-bs-placement="top" title="Nieuwe land"></i></a>
                         &nbsp;
-                        <a href="countryOverzicht.php?deleted"><i class="bi bi-person-fill-slash fs-2 text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Verwijderde gebruikers"></i></a>
+                        <a href="countryOverzicht.php?deleted"><i class="bi bi-dash-circle fs-3 text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Verwijderde landen"></i></a>
                     <?php endif; ?>
                 </span>
                 <h3>Overzicht
@@ -64,10 +64,10 @@
                                 <td><?php echo $row["iso_code"] ?></td>
                                 <td>
                                     <?php if($deleted): ?>
-                                        <i id="Activate" class="bi bi-person-up text-success fs-2" onclick='showModalReactivate("<?php echo $row["name"];?>","<?php echo $row["id"];?>")' data-bs-toggle="modal" data-bs-target="#Reactivatecountry" data-bs-toggle="tooltip" data-bs-placement="top" title="Gebruiker terug activeren"></i>
+                                        <i id="Activate" class="bi bi-arrow-clockwise text-success fs-2" onclick='showModalReactivate("<?php echo $row["name"];?>","<?php echo $row["id"];?>")' data-bs-toggle="modal" data-bs-target="#Reactivatecountry" data-bs-toggle="tooltip" data-bs-placement="top" title="Gebruiker terug activeren"></i>
                                     <?php else: ?>                                    
-                                        <a href="countryUpdate.php?id=<?php echo $row["id"]; ?>"><i class="bi bi-pencil-square text-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit gebruiker"></i></a>
-                                        <i id="countryDelete" class="bi bi-x-square text-danger" onclick='showModalDelete("<?php echo $row["name"];?>","<?php echo $row["id"];?>")' data-bs-toggle="modal" data-bs-target="#Deletecountry" data-bs-toggle="tooltip" data-bs-placement="top" title="Verwijder gebruiker"></i>
+                                        <a href="countryUpdate.php?id=<?php echo $row["id"]; ?>"><i class="bi bi-pencil text-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit gebruiker"></i></a>
+                                        <i id="countryDelete" class="bi bi-trash text-danger" onclick='showModalDelete("<?php echo $row["name"];?>","<?php echo $row["id"];?>")' data-bs-toggle="modal" data-bs-target="#Deletecountry" data-bs-toggle="tooltip" data-bs-placement="top" title="Verwijder gebruiker"></i>
                                         <?php endif; ?>
                                 </td>
                             </tr>

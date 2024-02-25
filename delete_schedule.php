@@ -6,7 +6,7 @@ if(!isset($_GET['id'])){
     exit;
 }
 
-$delete = $conn->query("DELETE FROM `schedule_list` where id = '{$_GET['id']}'");
+$delete = $conn->query("DELETE FROM `work_time` where id = '{$_GET['id']}'");
 if($delete){
     echo "<script> location.replace('./homePage.php') </script>";
 }else{
