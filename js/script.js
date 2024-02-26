@@ -29,7 +29,7 @@ $(function() {
             var id = info.event.id;
             if (!!scheds[id]) {
                 _details.find('#title').text(scheds[id].title);
-                //_details.find('#description').text(scheds[id].description);
+                _details.find('#description').text(scheds[id].description);
                 _details.find('#start').text(new Date(scheds[id].start_time).toLocaleString('nl-NL'));
                 _details.find('#end').text(new Date(scheds[id].end_time).toLocaleString('nl-NL'));
                 _details.find('#edit,#delete').attr('data-id', id);

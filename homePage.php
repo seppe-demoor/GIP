@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["end_project"])) {
     }
 }
 
-$schedules = $conn->query("SELECT p.id, p.title, p.description, l.start_time, l.end_time FROM projects p JOIN work_time l ON p.id = l.project_id;   ");
+$schedules = $conn->query("SELECT p.id, p.title, p.description, l.start_time, l.end_time FROM projects p JOIN work_time l ON p.id = l.project_id;");
 $projects = $conn->query("SELECT * FROM `projects`");
 $sched_res = [];
 $project_res = [];
@@ -56,10 +56,17 @@ while ($row = $projects->fetch_assoc()) {
 }
 
 while ($row = $schedules->fetch_assoc()) {
-    $row['sdate'] = date("F d, Y h:i A", strtotime($row['start_time']));
-    $row['edate'] = date("F d, Y h:i A", strtotime($row['end_time']));
-    $sched_res[$row['id']] = $row;
+    if (!empty($row['start_time']) && !empty($row['end_time'])) {
+        $row['sdate'] = date("F d, Y h:i A", strtotime($row['start_time']));
+        $row['edate'] = date("F d, Y h:i A", strtotime($row['end_time']));
+    } else {
+        // Handle the case where start_time or end_time is null or empty
+        $row['sdate'] = 'N/A';
+        $row['edate'] = 'N/A';
+    }
+    $sched_res[] = $row;
 }
+
 
 // Handle Project Selection
 $selectedProject = null;
@@ -157,19 +164,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
                                             onclick="startProject()">Start</button>
                                         <button class="btn btn-danger btn-sm rounded-0" type="button"
                                             onclick="endProject()">End</button>
-                                    <?php else : ?>
-                                        <label for="start_time" class="control-label">Start Datum</label>
-                                        <input type="datetime-local" class="form-control form-control-sm rounded-0"
-                                            name="start_time" id="start_time" required>
-                                        <label for="end_time" class="control-label">Eind Datum</label>
-                                        <input type="datetime-local" class="form-control form-control-sm rounded-0"
-                                            name="end_time" id="end_time" required>
+                                            
                                     <?php endif; ?>
                                 </div>
                             </form>
                         </div>
                         <div class="card-footer">
+                        <label for="start_time" class="control-label">Start Datum</label>
+                                        <input type="datetime-local" class="form-control form-control-sm rounded-0"
+                                            name="start_time" id="start_time">
+                                        <label for="end_time" class="control-label">Eind Datum</label>
+                                        <input type="datetime-local" class="form-control form-control-sm rounded-0"
+                                            name="end_time" id="end_time">
                         <div class="text-center">
+                                        
                             <button class="btn btn-primary btn-sm rounded-0" type="submit" form="schedule-form"><i class="fa fa-save"></i> Save</button>
                             <button class="btn btn-default border btn-sm rounded-0" type="reset" form="schedule-form"><i class="fa fa-reset"></i> Cancel</button>
                         </div>
@@ -253,8 +261,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
         var scheds = <?php echo json_encode($sched_res); ?>;
    
        
-        
-
         function startProject() {
     $.ajax({
         type: 'POST',

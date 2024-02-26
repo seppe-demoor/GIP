@@ -6,8 +6,13 @@ $save = false;
 
 // Check if $_POST["action"] is set
 if (isset($_POST["action"])) {
-    if ($_POST["action"] == "save_schedule") {
+    if ($_POST["action"] == "save_project") {
         extract($_POST);
+
+        $sql = "INSERT INTO `projects` (`title`,`description`) VALUES (?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ss", $title, $description);
+        $save = $stmt->execute();
         $allday = isset($allday);
         
         $save = $conn->query($sql);
@@ -34,4 +39,3 @@ if (isset($_POST["action"])) {
 
 $conn->close();
 ?>
-
