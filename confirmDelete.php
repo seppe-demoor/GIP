@@ -1,7 +1,7 @@
 <?php
 require("start.php");
 
-if (!isset($_SESSION["username"])) {
+if (!isset($_SESSION["email"])) {
     //user is reeds aangemeld
     header("Location: loginPage.php");
     exit;
@@ -9,15 +9,15 @@ if (!isset($_SESSION["username"])) {
 
 require("pdo.php");
 
-if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET["GUID"])) {
-    $GUID = $_GET['GUID'];
+if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET["id"])) {
+    $id = $_GET['id'];
     
-    $query = "SELECT `username`, `naam`, `voornaam`, `email` FROM `users` WHERE `GUID` = :GUID";
+    $query = "SELECT  `naam`, `voornaam`, `email` FROM `users` WHERE `id` = :id";
     
     try 
     {
         $stmt = $pdo->prepare($query);
-        $stmt->bindParam(":GUID", $GUID, PDO::PARAM_STR);
+        $stmt->bindParam(":id", $id, PDO::PARAM_STR);
         $stmt->execute();
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
     } 
@@ -40,7 +40,7 @@ require("header.php");
         <div class="col-sm-12">
             <h3>Bevestig Verwijderen</h3>
             <p>Weet je zeker dat je de gebruiker "<?php echo $user['username']; ?>" wilt verwijderen?</p>
-            <a href="Delete.php?GUID=<?php echo $GUID; ?>" class="btn btn-danger">Verwijderen</a>
+            <a href="Delete.php?id=<?php echo $id; ?>" class="btn btn-danger">Verwijderen</a>
             <a href="userOverzicht.php" class="btn btn-secondary">Annuleren</a>
         </div>
     </div>

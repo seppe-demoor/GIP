@@ -9,10 +9,10 @@
     require("pdo.php");
 
     if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['deleted'])) {
-        $query = "SELECT `id`,`username`,`naam`,`voornaam`,`email`,`admin` FROM `users` WHERE `active` = 0";
+        $query = "SELECT `id`,`naam`,`voornaam`,`email`,`phone_number`,`admin` FROM `users` WHERE `active` = 0";
         $deleted = true;
     } else {
-        $query = "SELECT `id`,`username`,`naam`,`voornaam`,`email`,`admin` FROM `users` WHERE `active` = 1";
+        $query = "SELECT `id`,`naam`,`voornaam`,`email`,`phone_number`,`admin` FROM `users` WHERE `active` = 1";
         $deleted = false;
     }
 
@@ -47,27 +47,27 @@
                 </h3>
                 <table class="table table-hover table-striped">
                     <tr>
-                        <th>Gebruikersnaam</th>
                         <th>Naam</th>
                         <th>Voornaam</th>
                         <th>Email</th>
+                        <th>telefoonnummer</th>
                         <th>Admin</th>
                         <th>Acties</th>
                     </tr>
                     <?php if($res->rowCount() != 0) : ?>
                         <?php while($row = $res->fetch(PDO::FETCH_ASSOC)) : ?>
                             <tr>
-                                <td><?php echo $row["username"]; ?></td>
                                 <td><?php echo $row["naam"]; ?></td>
                                 <td><?php echo $row["voornaam"]; ?></td>
                                 <td><?php echo $row["email"]; ?></td>
+                                <td><?php echo $row["phone_number"]; ?></td>
                                 <td><?php echo $row["admin"]? '<i class="bi bi-check-square-fill text-success"></i>' : '<i class="bi bi-square"></i>'; ?></td>
                                 <td>
                                     <?php if($deleted): ?>
-                                        <i id="Activate" class="bi bi-person-up text-success fs-2" onclick='showModalReactivate("<?php echo $row["username"];?>","<?php echo $row["id"];?>")' data-bs-toggle="modal" data-bs-target="#ReactivateUser" data-bs-toggle="tooltip" data-bs-placement="top" title="Gebruiker terug activeren"></i>
+                                        <i id="Activate" class="bi bi-person-up text-success fs-2" onclick='showModalReactivate("<?php echo $row["email"];?>","<?php echo $row["id"];?>")' data-bs-toggle="modal" data-bs-target="#ReactivateUser" data-bs-toggle="tooltip" data-bs-placement="top" title="Gebruiker terug activeren"></i>
                                     <?php else: ?>                                    
                                         <a href="userUpdate.php?id=<?php echo $row["id"]; ?>"><i class="bi bi-pencil text-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit gebruiker"></i></a>
-                                        <i id="Delete" class="bi bi-trash text-danger" onclick='showModalDelete("<?php echo $row["username"];?>","<?php echo $row["id"];?>")' data-bs-toggle="modal" data-bs-target="#DeleteUser" data-bs-toggle="tooltip" data-bs-placement="top" title="Verwijder gebruiker"></i>
+                                        <i id="Delete" class="bi bi-trash text-danger" onclick='showModalDelete("<?php echo $row["email"];?>","<?php echo $row["id"];?>")' data-bs-toggle="modal" data-bs-target="#DeleteUser" data-bs-toggle="tooltip" data-bs-placement="top" title="Verwijder gebruiker"></i>
                                         <a href="resetUser.php?id=<?php echo$row["id"]; ?>"><i class="bi bi-unlock text-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Reset wachtwoord"></i></a>
                                     <?php endif; ?>
                                 </td>
@@ -134,8 +134,8 @@
 
     <script>
         //Deleten van een user
-        function showModalDelete(username, uuid) {
-            document.getElementById('userDEL').innerHTML = username;
+        function showModalDelete(email, uuid) {
+            document.getElementById('userDEL').innerHTML = email;
             document.getElementById('KnopVerwijder').value = uuid;
         }
 
@@ -154,8 +154,8 @@
 
         
         //Heractiveren van een user
-        function showModalReactivate(username, uuid) {
-            document.getElementById('userACT').innerHTML = username;
+        function showModalReactivate(email, uuid) {
+            document.getElementById('userACT').innerHTML = email;
             document.getElementById('KnopActivate').value = uuid;
         }
 
