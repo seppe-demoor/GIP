@@ -1,6 +1,5 @@
-<?php 
+<?php
 require_once('pdo.php');
-
 
 $save = false;
 
@@ -14,9 +13,6 @@ if (isset($_POST["action"])) {
         $stmt->bind_param("ss", $title, $description);
         $save = $stmt->execute();
         $allday = isset($allday);
-        
-        $save = $conn->query($sql);
-        
     } elseif ($_POST["action"] == "start_project") {
         $project_id = $_POST["project_id"];
         $now = new DateTime();
@@ -37,5 +33,37 @@ if (isset($_POST["action"])) {
     }
 }
 
+// Handle form submission if it's a POST request
+if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST["action"])) {
+    // Receive form data
+    
+    $title = $_POST['title'];
+    $description = $_POST['description'];
+    $project_id = $_POST['project_id'];
+    $start_time = $_POST['start_time'];
+    $end_time = $_POST['end_time'];
+
+    // Add project to the database
+    $sql = "INSERT INTO `projects` (`title`, `description`) VALUES (?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $title, $description);
+    $stmt->execute();
+    $project_id = $conn->insert_id; // Receive the automatically generated project_id
+
+    // Add work period to the database
+    $sql = "INSERT INTO `work_time` (`project_id`, `start_time`, `end_time`) VALUES (?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("iss", $project_id, $start_time, $end_time);
+    $stmt->execute();
+
+    $save = true;
+}
+
 $conn->close();
+
+if ($save) {
+    echo "Gegevens zijn succesvol opgeslagen.";
+} else {
+    echo "Er is een fout opgetreden tijdens het opslaan van gegevens.";
+}
 ?>

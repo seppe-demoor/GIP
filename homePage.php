@@ -7,7 +7,7 @@ require("pdo.php");
 // Set locale to Dutch
 setlocale(LC_TIME, 'nl_NL');
 
-if (!isset($_SESSION["username"])) {
+if (!isset($_SESSION["email"])) {
     header("Location: loginPage.php");
     exit;
 }
@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["end_project"])) {
     }
 }
 
-$schedules = $conn->query("SELECT p.id, p.title, p.description, l.start_time, l.end_time FROM projects p JOIN work_time l ON p.id = l.project_id;");
+$schedules = $conn->query("SELECT l.id as work_id, p.id as project_id, p.title, p.description, l.start_time, l.end_time FROM projects p JOIN work_time l ON p.id = l.project_id;");
 $projects = $conn->query("SELECT * FROM `projects`");
 $sched_res = [];
 $project_res = [];
@@ -60,12 +60,12 @@ while ($row = $schedules->fetch_assoc()) {
         $row['sdate'] = date("F d, Y h:i A", strtotime($row['start_time']));
         $row['edate'] = date("F d, Y h:i A", strtotime($row['end_time']));
     } else {
-        // Handle the case where start_time or end_time is null or empty
         $row['sdate'] = 'N/A';
         $row['edate'] = 'N/A';
     }
-    $sched_res[] = $row;
+    $sched_res[$row['work_id']] = $row; // Gebruik 'work_id' in plaats van 'id'
 }
+
 
 
 // Handle Project Selection
@@ -141,7 +141,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
 
                 <div class="cardt rounded-0 shadow">
                     <div class="card-header bg-gradient bg-primary text-light">
-                        <h5 class="card-title">Schedule Form</h5>
                     </div>
                     <div class="card-body">
                         <div class="container-fluid">
@@ -158,7 +157,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
                                         name="description" id="description"
                                         required><?= $selectedProject ? $selectedProject['description'] : '' ?></textarea>
                                 </div>
+    
                                 <div class="form-group mb-2">
+                                    <label for="start_time" class="control-label">Start</label>
+                                    <input type="datetime-local" class="form-control form-control-sm rounded-0" name="start_time" id="start_time" required>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label for="end_time" class="control-label">End</label>
+                                    <input type="datetime-local" class="form-control form-control-sm rounded-0" name="end_time" id="end_time" required>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="form-group mb-2 text-center">
                                     <?php if ($selectedProject) : ?>
                                         <button class="btn btn-success btn-sm rounded-0" type="button"
                                             onclick="startProject()">Start</button>
@@ -167,23 +178,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
                                             
                                     <?php endif; ?>
                                 </div>
-                            </form>
-                        </div>
-                        <div class="card-footer">
-                        <label for="start_time" class="control-label">Start Datum</label>
-                                        <input type="datetime-local" class="form-control form-control-sm rounded-0"
-                                            name="start_time" id="start_time">
-                                        <label for="end_time" class="control-label">Eind Datum</label>
-                                        <input type="datetime-local" class="form-control form-control-sm rounded-0"
-                                            name="end_time" id="end_time">
+                    <div class="card-footer">
                         <div class="text-center">
-                                        
                             <button class="btn btn-primary btn-sm rounded-0" type="submit" form="schedule-form"><i class="fa fa-save"></i> Save</button>
                             <button class="btn btn-default border btn-sm rounded-0" type="reset" form="schedule-form"><i class="fa fa-reset"></i> Cancel</button>
                         </div>
                     </div>
-                    </div>
-                </div>
+                                
+                            </form>
+                        </div>
+                 
 
                 <!-- Project List and Select Form -->
                 <div class="card rounded-0 shadow mt-3">
@@ -304,4 +308,4 @@ function endProject() {
     <script src="./js/script.js"></script>
 </body>
 
-</html>
+</html> 

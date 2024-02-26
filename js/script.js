@@ -6,7 +6,7 @@ $(function() {
     if (!!scheds) {
         Object.keys(scheds).map(k => {
             var row = scheds[k];
-            events.push({ id: row.id, title: row.title, start: row.start_time, end: row.end_time });
+            events.push({ id: row.work_id, project_id: row.project_id, title: row.title, start: row.start_time, end: row.end_time });
         });
     }
 
@@ -27,12 +27,14 @@ $(function() {
         eventClick: function(info) {
             var _details = $('#event-details-modal');
             var id = info.event.id;
+            var project_id = info.event.extendedProps.project_id; // Haal de project_id op
             if (!!scheds[id]) {
                 _details.find('#title').text(scheds[id].title);
                 _details.find('#description').text(scheds[id].description);
                 _details.find('#start').text(new Date(scheds[id].start_time).toLocaleString('nl-NL'));
                 _details.find('#end').text(new Date(scheds[id].end_time).toLocaleString('nl-NL'));
                 _details.find('#edit,#delete').attr('data-id', id);
+                _details.find('#edit,#delete').attr('data-project-id', project_id); // Voeg de project_id toe als attribuut
                 _details.modal('show');
             } else {
                 alert("Evenement is niet gedefinieerd");
@@ -43,6 +45,8 @@ $(function() {
         },
         editable: true
     });
+
+
 
     calendar.render();
 
