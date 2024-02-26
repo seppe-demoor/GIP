@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST["action"])) {
     
     $title = $_POST['title'];
     $description = $_POST['description'];
-    $project_id = $_POST['project_id'];
+    //$project_id = $_POST['project_id'];
     $start_time = $_POST['start_time'];
     $end_time = $_POST['end_time'];
 
@@ -57,6 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST["action"])) {
     $stmt->execute();
 
     $save = true;
+    header("Location:homePage.php");
 }
 
 $conn->close();

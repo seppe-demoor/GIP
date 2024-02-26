@@ -195,7 +195,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
                         <h5 class="card-title">Create or Select Project</h5>
                     </div>
                     <div class="card-body">
-                        <form action="homepage.php" method="post" id="project-form">
+                        <form action="homePage.php" method="post" id="project-form">
                             <div class="form-group mb-2">
                                 <label for="projectTitle" class="control-label">Title</label>
                                 <input type="text" class="form-control form-control-sm rounded-0" name="title"
