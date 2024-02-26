@@ -3,7 +3,7 @@
 <?php
 require("start.php");
 
-if (isset($_SESSION['username'])) {
+if (isset($_SESSION['email'])) {
     //user is reeds aangemeld
     header("Location: homePage.php");
     exit;
@@ -14,13 +14,13 @@ $showAlert = false;
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     require("pdo.php");
 
-    $username = trim($_POST["username"]);
+    $email = trim($_POST["email"]);
     $password = trim($_POST["password"]);
 
     //query klaarzetten
-    $query = "SELECT `id`,`username`,`userPassword`,`passwordReset`,`admin`,`active` FROM `users` WHERE `username` = :username";
+    $query = "SELECT `id`,`email`,`userPassword`,`passwordReset`,`admin`,`active` FROM `users` WHERE `email` = :email";
     //values voor de pdo
-    $values = [':username' => $username];
+    $values = [':email' => $email];
 
 
     try {
@@ -37,8 +37,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $row = $res->fetch(PDO::FETCH_ASSOC);
 
     if ($row['active'] == true) {
-        if ($username == $row['username'] && password_verify($password, $row['userPassword'])) {
-            $_SESSION["username"] = $username;
+        if ($email == $row['email'] && password_verify($password, $row['userPassword'])) {
+            $_SESSION["email"] = $email;
             $_SESSION['CREATED'] = time();
             $_SESSION['id'] = $row['id'];
             $_SESSION['admin'] = $row['admin'];
@@ -141,8 +141,8 @@ require("header.php");
                 <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
 
                     <div>
-                        <label for="username" class="form-label">Username:</label>
-                        <input type="text" class="form-control" id="Username" name="username" required>
+                        <label for="email" class="form-label">email:</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
                     </div>
 
                         <div>

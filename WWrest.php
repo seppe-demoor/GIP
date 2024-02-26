@@ -3,7 +3,7 @@
 // Reset voor gebruiker
 require("start.php");
 
-if (!isset($_SESSION['username'])) {
+if (!isset($_SESSION['email'])) {
     // User is reeds aangemeld
     header("Location: loginPage.php");
     exit;
