@@ -153,6 +153,7 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
 
                 <div class="cardt rounded-0 shadow">
                     <div class="card-header bg-gradient bg-primary text-light">
+                            <h5 class="card-title">Tijden Opslaan</h5>
                     </div>
                     <div class="card-body">
                         <div class="container-fluid">
@@ -170,26 +171,40 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                                         required><?= $selectedProject ? $selectedProject['description'] : '' ?></textarea>
                                 </div>
 
-                                <div class="form-group mb-2">
-                                    <label for="start_time" class="control-label">Start</label>
-                                    <input type="datetime-local" class="form-control form-control-sm rounded-0" name="start_time" id="start_time" required>
-                                </div>
-                                <div class="form-group mb-2">
-                                    <label for="end_time" class="control-label">End</label>
-                                    <input type="datetime-local" class="form-control form-control-sm rounded-0" name="end_time" id="end_time" required>
+                                <input type="checkbox" id="showDateTime" onchange="toggleDateTime()"> selecteer een datum
+
+                                <div id="dateTimeContainer" style="display: none;">
+                                    <div class="form-group mb-2">
+                                        <label for="start_time" class="control-label">Start</label>
+                                        <input type="datetime-local" class="form-control form-control-sm rounded-0" name="start_time" id="start_time" required>
+                                    </div>
+                                    <div class="form-group mb-2">
+                                        <label for="end_time" class="control-label">eind</label>
+                                        <input type="datetime-local" class="form-control form-control-sm rounded-0" name="end_time" id="end_time" required>
+                                    </div>
                                 </div>
                             </form>
                         </div>
                     </div>
 
-                    <div class="form-group mb-2 text-center">
-                        <?php if ($selectedProject) : ?>
-                            <button class="btn btn-success btn-sm rounded-0" type="button"
-                                onclick="startProject()">Start</button>
-                            <button class="btn btn-danger btn-sm rounded-0" type="button"
-                                onclick="endProject()">End</button>
+                    <div id="dateTimeContainer" style="display: none;">
+                        <div class="form-group mb-2">
+                            <label for="start_time" class="control-label">Start</label>
+                            <input type="datetime-local" class="form-control form-control-sm rounded-0" name="start_time" id="start_time" required>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label for="end_time" class="control-label">eind</label>
+                            <input type="datetime-local" class="form-control form-control-sm rounded-0" name="end_time" id="end_time" required>
+                        </div>
+                    </div>
 
-                        <?php endif; ?>
+                    <div id="buttonsContainer">
+                        <div class="form-group mb-2 text-center">
+                            <?php if ($selectedProject) : ?>
+                                <button class="btn btn-success btn-sm rounded-0" type="button" onclick="startProject()">Start</button>
+                                <button class="btn btn-danger btn-sm rounded-0" type="button" onclick="endProject()">Eind</button>
+                            <?php endif; ?>
+                        </div>
                     </div>
                     </form>
                     <div class="card-footer">
@@ -202,17 +217,17 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                     </form>
                     <div class="card rounded-0 shadow mt-3">
                         <div class="card-header bg-gradient bg-primary text-light mt-3">
-                            <h5 class="card-title">Create or Select Project</h5>
+                        <h5 class="card-title">Mijn Project</h5>
                         </div>
                         <div class="card-body">
                             <form action="homePage.php" method="post" id="project-form">
                                 <div class="form-group mb-2">
-                                    <label for="projectTitle" class="control-label">Title</label>
+                                    <label for="projectTitle" class="control-label">Titel</label>
                                     <input type="text" class="form-control form-control-sm rounded-0" name="title"
                                         id="projectTitle" >
                                 </div>
                                 <div class="form-group mb-2">
-                                    <label for="projectDescription" class="control-label">Description</label>
+                                    <label for="projectDescription" class="control-label">Beschrijving</label>
                                     <textarea rows="3" class="form-control form-control-sm rounded-0"
                                         name="description" id="projectDescription" ></textarea>
                                 </div>
@@ -220,7 +235,7 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                                     name="save_project"><i class="fa fa-save"></i> Save Project</button>
                                 <hr>
                                 <div class="mb-2">
-                                <label for="projectSelect" class="control-label">Select a Project</label>
+                                <label for="projectSelect" class="control-label">Selecteer een Project</label>
                                 <select class="form-control form-control-sm rounded-0" name="project_id" id="projectSelect">
                                     <?php foreach ($project_res as $projectId => $project) : ?>
                                         <option value="<?= $projectId ?>" <?php echo ($selectedProjectId == $projectId) ? "selected" : "" ?>><?= $project['title'] ?></option>
@@ -228,7 +243,7 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                                 </select>
                             </div>
                                 <button class="btn btn-primary btn-sm rounded-0" type="submit"
-                                    name="select_project"><i class="fa fa-check"></i> Select Project</button>
+                                    name="select_project"><i class="fa fa-check"></i> Selecteer Project</button>
                             </form>
                         </div>
                     </div>
@@ -241,28 +256,28 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-0">
                 <div class="modal-header rounded-0">
-                    <h5 class="modal-title">Schedule Details</h5>
+                    <h5 class="modal-title">kalender Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body rounded-0">
                     <div class="container-fluid">
                         <dl>
-                            <dt class="text-muted">Title</dt>
+                            <dt class="text-muted">Titel</dt>
                             <dd id="title" class="fw-bold fs-4"></dd>
-                            <dt class="text-muted">Description</dt>
+                            <dt class="text-muted">Beschrijving</dt>
                             <dd id="description" class=""></dd>
                             <dt class="text-muted">Start</dt>
                             <dd id="start" class=""></dd>
-                            <dt class="text-muted">End</dt>
+                            <dt class="text-muted">Eind</dt>
                             <dd id="end" class=""></dd>
                         </dl>
                     </div>
                 </div>
                 <div class="modal-footer rounded-0">
                     <div class="text-end">
-                        <button type="button" class="btn btn-primary btn-sm rounded-0" id="edit" data-id="">Edit</button>
-                        <button type="button" class="btn btn-danger btn-sm rounded-0" id="delete" data-id="">Delete</button>
-                        <button type="button" class="btn btn-secondary btn-sm rounded-0" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary btn-sm rounded-0" id="edit" data-id="">Bewerk</button>
+                        <button type="button" class="btn btn-danger btn-sm rounded-0" id="delete" data-id="">Verwijder</button>
+                        <button type="button" class="btn btn-secondary btn-sm rounded-0" data-bs-dismiss="modal">Sluiten</button>
                     </div>
                 </div>
             </div>
@@ -274,6 +289,19 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
     ?>
     <script>
         var scheds = <?php echo json_encode($sched_res); ?>;
+        function toggleDateTime() {
+                var dateTimeContainer = document.getElementById("dateTimeContainer");
+                var buttonsContainer = document.getElementById("buttonsContainer");
+
+                if (document.getElementById("showDateTime").checked) {
+                    dateTimeContainer.style.display = "block";
+                    buttonsContainer.style.display = "none";
+                } else {
+                    dateTimeContainer.style.display = "none";
+                    buttonsContainer.style.display = "block";
+                }
+            }
+
 
         function startProject() {
             $.ajax({
