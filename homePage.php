@@ -1,11 +1,10 @@
 <?php
-// homepage.php
-
 require("start.php");
 require("pdo.php");
 
 // Set locale to Dutch
 setlocale(LC_TIME, 'nl_NL');
+
 
 if (!isset($_SESSION["email"])) {
     header("Location: loginPage.php");
@@ -66,17 +65,28 @@ while ($row = $schedules->fetch_assoc()) {
     $sched_res[$row['work_id']] = $row; // Gebruik 'work_id' in plaats van 'id'
 }
 
-
-
 // Handle Project Selection
 $selectedProject = null;
 $selectedProjectId = null;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
     $selectedProjectId = $_POST["project_id"];
+    $_SESSION["selected_project_id"] = $selectedProjectId;
+}
+
+// Load selected project information from session
+if (isset($_SESSION["selected_project_id"])) {
+    $selectedProjectId = $_SESSION["selected_project_id"];
     // Placeholder: Replace with your logic to fetch project details
     $selectedProject = $conn->query("SELECT * FROM `projects` WHERE `id` = $selectedProjectId")->fetch_assoc();
 }
 
+// Set green bar visibility in session when starting project
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["start_project"])) {
+    $_SESSION["green_bar_visible"] = true;
+}
+
+// Load green bar visibility from session
+$greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_visible"] : false;
 ?>
 
 <!DOCTYPE html>
@@ -125,7 +135,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
 </head>
 
 <body class="bg-light">
-
+    <div id="green-bar" class="alert alert-success text-center" style="display: none;">
+        <strong>Je <?php echo isset($selectedProject) ? $selectedProject['title'] : 'geen project' ?> is nog aan het lopen</strong>
+    </div>
     <div class="container py-5" id="page-container">
         <div class="row">
             <div class="col-md-9">
@@ -157,7 +169,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
                                         name="description" id="description"
                                         required><?= $selectedProject ? $selectedProject['description'] : '' ?></textarea>
                                 </div>
-    
+
                                 <div class="form-group mb-2">
                                     <label for="start_time" class="control-label">Start</label>
                                     <input type="datetime-local" class="form-control form-control-sm rounded-0" name="start_time" id="start_time" required>
@@ -169,60 +181,59 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
                             </form>
                         </div>
                     </div>
+
                     <div class="form-group mb-2 text-center">
-                                    <?php if ($selectedProject) : ?>
-                                        <button class="btn btn-success btn-sm rounded-0" type="button"
-                                            onclick="startProject()">Start</button>
-                                        <button class="btn btn-danger btn-sm rounded-0" type="button"
-                                            onclick="endProject()">End</button>
-                                            
-                                    <?php endif; ?>
-                                </div>
+                        <?php if ($selectedProject) : ?>
+                            <button class="btn btn-success btn-sm rounded-0" type="button"
+                                onclick="startProject()">Start</button>
+                            <button class="btn btn-danger btn-sm rounded-0" type="button"
+                                onclick="endProject()">End</button>
+
+                        <?php endif; ?>
+                    </div>
+                    </form>
                     <div class="card-footer">
                         <div class="text-center">
                             <button class="btn btn-primary btn-sm rounded-0" type="submit" form="schedule-form"><i class="fa fa-save"></i> Save</button>
                             <button class="btn btn-default border btn-sm rounded-0" type="reset" form="schedule-form"><i class="fa fa-reset"></i> Cancel</button>
                         </div>
                     </div>
-                                
+
+                    </form>
+                    <div class="card rounded-0 shadow mt-3">
+                        <div class="card-header bg-gradient bg-primary text-light mt-3">
+                            <h5 class="card-title">Create or Select Project</h5>
+                        </div>
+                        <div class="card-body">
+                            <form action="homePage.php" method="post" id="project-form">
+                                <div class="form-group mb-2">
+                                    <label for="projectTitle" class="control-label">Title</label>
+                                    <input type="text" class="form-control form-control-sm rounded-0" name="title"
+                                        id="projectTitle" >
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label for="projectDescription" class="control-label">Description</label>
+                                    <textarea rows="3" class="form-control form-control-sm rounded-0"
+                                        name="description" id="projectDescription" ></textarea>
+                                </div>
+                                <button class="btn btn-primary btn-sm rounded-0" type="submit"
+                                    name="save_project"><i class="fa fa-save"></i> Save Project</button>
+                                <hr>
+                                <div class="mb-2">
+                                <label for="projectSelect" class="control-label">Select a Project</label>
+                                <select class="form-control form-control-sm rounded-0" name="project_id" id="projectSelect">
+                                    <?php foreach ($project_res as $projectId => $project) : ?>
+                                        <option value="<?= $projectId ?>" <?php echo ($selectedProjectId == $projectId) ? "selected" : "" ?>><?= $project['title'] ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                                <button class="btn btn-primary btn-sm rounded-0" type="submit"
+                                    name="select_project"><i class="fa fa-check"></i> Select Project</button>
                             </form>
                         </div>
-                 
+                    </div>
 
-                <!-- Project List and Select Form -->
-                <div class="card rounded-0 shadow mt-3">
-                    <div class="card-header bg-gradient bg-primary text-light mt-3">
-                        <h5 class="card-title">Create or Select Project</h5>
-                    </div>
-                    <div class="card-body">
-                        <form action="homePage.php" method="post" id="project-form">
-                            <div class="form-group mb-2">
-                                <label for="projectTitle" class="control-label">Title</label>
-                                <input type="text" class="form-control form-control-sm rounded-0" name="title"
-                                    id="projectTitle" >
-                            </div>
-                            <div class="form-group mb-2">
-                                <label for="projectDescription" class="control-label">Description</label>
-                                <textarea rows="3" class="form-control form-control-sm rounded-0"
-                                    name="description" id="projectDescription" ></textarea>
-                            </div>
-                            <button class="btn btn-primary btn-sm rounded-0" type="submit"
-                                name="save_project"><i class="fa fa-save"></i> Save Project</button>
-                            <hr>
-                            <div class="mb-2">
-                            <label for="projectSelect" class="control-label">Select a Project</label>
-                            <select class="form-control form-control-sm rounded-0" name="project_id" id="projectSelect">
-                                <?php foreach ($project_res as $projectId => $project) : ?>
-                                    <option value="<?= $projectId ?>"><?= $project['title'] ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                            <button class="btn btn-primary btn-sm rounded-0" type="submit"
-                                name="select_project"><i class="fa fa-check"></i> Select Project</button>
-                        </form>
-                    </div>
                 </div>
-                
             </div>
         </div>
     </div>
@@ -263,49 +274,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
     ?>
     <script>
         var scheds = <?php echo json_encode($sched_res); ?>;
-   
-       
-        function startProject() {
-    $.ajax({
-        type: 'POST',
-        url: 'save_schedule.php',
-        data: {
-            action: 'start_project',
-            project_id: <?php echo is_null($selectedProjectId) ? 1 : $selectedProjectId ?>,
-            title: $('#title').val(),
-            description: $('#description').val()
-        },
-        success: function (response) {
-            alert("Project Started");
-            // You may want to reload the calendar or update it based on the response
-        },
-        error: function (error) {
-            alert("Error starting project");
-        }
-    });
-}
 
-function endProject() {
-    $.ajax({
-        type: 'POST',
-        url: 'save_schedule.php',
-        data: {
-            action: 'end_project',
-            project_id: <?php echo is_null($selectedProjectId) ? 1 : $selectedProjectId ?>,
-            title: $('#title').val(),
-            description: $('#description').val()
-        },
-        success: function (response) {
-            alert("Project Ended");
-            // You may want to reload the calendar or update it based on the response
-        },
-        error: function (error) {
-            alert("Error ending project");
+        function startProject() {
+            $.ajax({
+                type: 'POST',
+                url: 'save_schedule.php',
+                data: {
+                    action: 'start_project',
+                    project_id: <?php echo is_null($selectedProjectId) ? 1 : $selectedProjectId ?>,
+                    title: $('#title').val(),
+                    description: $('#description').val()
+                },
+                success: function (response) {
+                    $('#green-bar').show();
+                    <?php $_SESSION["green_bar_visible"] = true; ?>
+                },
+                error: function (error) {
+                    alert("Error starting project");
+                }
+            });
         }
-    });
-}
+
+        function endProject() {
+            $.ajax({
+                type: 'POST',
+                url: 'save_schedule.php',
+                data: {
+                    action: 'end_project',
+                    project_id: <?php echo is_null($selectedProjectId) ? 1 : $selectedProjectId ?>,
+                    title: $('#title').val(),
+                    description: $('#description').val()
+                },
+                success: function (response) {
+                    $('#green-bar').hide();
+                    <?php unset($_SESSION["green_bar_visible"]); ?>
+                    location.reload();
+                },
+                error: function (error) {
+                    alert("Error ending project");
+                }
+            });
+        }
     </script>
     <script src="./js/script.js"></script>
 </body>
 
-</html> 
+</html>
