@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["save_project"])) {
 // Project End Logic
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["end_project"])) {
     if (isset($_POST["title"]) && isset($_POST["description"])) {
-        $title = $_POST["title"];
+        $title = $_POST["title"]; 
         $description = $_POST["description"];
         $project_id = $_POST["project_id"];
 
@@ -209,8 +209,8 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                     </form>
                     <div class="card-footer">
                         <div class="text-center">
-                            <button class="btn btn-primary btn-sm rounded-0" type="submit" form="schedule-form"><i class="fa fa-save"></i> Save</button>
-                            <button class="btn btn-default border btn-sm rounded-0" type="reset" form="schedule-form"><i class="fa fa-reset"></i> Cancel</button>
+                            <button id="saveButton" class="btn btn-primary btn-sm rounded-0" type="submit" form="schedule-form" style="display: none;"><i class="fa fa-save"></i> Save</button>
+                            <button id="cancelButton" class="btn btn-default border btn-sm rounded-0" type="reset" form="schedule-form" style="display: none;"><i class="fa fa-reset"></i> Cancel</button>
                         </div>
                     </div>
 
@@ -301,6 +301,22 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                     buttonsContainer.style.display = "block";
                 }
             }
+
+            document.addEventListener("DOMContentLoaded", function() {
+                var showDateTimeCheckbox = document.getElementById("showDateTime");
+                var saveButton = document.getElementById("saveButton");
+                var cancelButton = document.getElementById("cancelButton");
+
+                showDateTimeCheckbox.addEventListener("change", function() {
+                    if (this.checked) {
+                        saveButton.style.display = "inline-block";
+                        cancelButton.style.display = "inline-block";
+                    } else {
+                        saveButton.style.display = "none";
+                        cancelButton.style.display = "none";
+                    }
+                });
+            });
 
 
         function startProject() {
