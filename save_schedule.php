@@ -33,31 +33,21 @@ if (isset($_POST["action"])) {
     }
 }
 
-// Handle form submission if it's a POST request
-if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST["action"])) {
-    // Receive form data
-    
-    $title = $_POST['title'];
-    $description = $_POST['description'];
-    //$project_id = $_POST['project_id'];
-    $start_time = $_POST['start_time'];
-    $end_time = $_POST['end_time'];
+if ($_POST["action"] == "edit_event") {
+    $event_id = $_POST["event_id"];
+    $title = $_POST["title"];
+    $description = $_POST["description"];
+    $start_time = $_POST["start_time"];
+    $end_time = $_POST["end_time"];
 
-    // Add project to the database
-    $sql = "INSERT INTO `projects` (`title`, `description`) VALUES (?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ss", $title, $description);
-    $stmt->execute();
-    $project_id = $conn->insert_id; // Receive the automatically generated project_id
+    $sql = "UPDATE work_time 
+    INNER JOIN projects ON work_time.project_id = projects.id 
+    SET projects.title=?, projects.description=?, work_time.start_time=?, work_time.end_time=? 
+    WHERE work_time.id=?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("ssssi", $title, $description, $start_time, $end_time, $event_id);
+$save = $stmt->execute();
 
-    // Add work period to the database
-    $sql = "INSERT INTO `work_time` (`project_id`, `start_time`, `end_time`) VALUES (?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iss", $project_id, $start_time, $end_time);
-    $stmt->execute();
-
-    $save = true;
-    header("Location:homePage.php");
 }
 
 $conn->close();

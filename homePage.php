@@ -153,7 +153,7 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
 
                 <div class="cardt rounded-0 shadow">
                     <div class="card-header bg-gradient bg-primary text-light">
-                            <h5 class="card-title">Tijden Opslaan</h5>
+                        <h5 class="card-title">Tijden Opslaan</h5>
                     </div>
                     <div class="card-body">
                         <div class="container-fluid">
@@ -161,14 +161,11 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                                 <input type="hidden" name="id" value="">
                                 <div class="form-group mb-2">
                                     <label for="title" class="control-label">Titel</label>
-                                    <input type="text" class="form-control form-control-sm rounded-0" name="title"
-                                        id="title" required value="<?= $selectedProject ? $selectedProject['title'] : '' ?>">
+                                    <input type="text" class="form-control form-control-sm rounded-0" name="title" id="title" required value="<?= $selectedProject ? $selectedProject['title'] : '' ?>">
                                 </div>
                                 <div class="form-group mb-2">
                                     <label for="description" class="control-label">Beschrijving</label>
-                                    <textarea rows="3" class="form-control form-control-sm rounded-0"
-                                        name="description" id="description"
-                                        required><?= $selectedProject ? $selectedProject['description'] : '' ?></textarea>
+                                    <textarea rows="3" class="form-control form-control-sm rounded-0" name="description" id="description" required><?= $selectedProject ? $selectedProject['description'] : '' ?></textarea>
                                 </div>
 
                                 <input type="checkbox" id="showDateTime" onchange="toggleDateTime()"> selecteer een datum
@@ -183,58 +180,43 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                                         <input type="datetime-local" class="form-control form-control-sm rounded-0" name="end_time" id="end_time" required>
                                     </div>
                                 </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div id="dateTimeContainer" style="display: none;">
-                        <div class="form-group mb-2">
-                            <label for="start_time" class="control-label">Start</label>
-                            <input type="datetime-local" class="form-control form-control-sm rounded-0" name="start_time" id="start_time" required>
-                        </div>
-                        <div class="form-group mb-2">
-                            <label for="end_time" class="control-label">eind</label>
-                            <input type="datetime-local" class="form-control form-control-sm rounded-0" name="end_time" id="end_time" required>
-                        </div>
-                    </div>
-
-                    <div id="buttonsContainer">
+                                <div id="buttonsContainer">
                         <div class="form-group mb-2 text-center">
                             <?php if ($selectedProject) : ?>
                                 <button class="btn btn-success btn-sm rounded-0" type="button" onclick="startProject()">Start</button>
                                 <button class="btn btn-danger btn-sm rounded-0" type="button" onclick="endProject()">Eind</button>
                             <?php endif; ?>
                         </div>
-                    </div>
-                    </form>
-                    <div class="card-footer">
-                        <div class="text-center">
-                            <button id="saveButton" class="btn btn-primary btn-sm rounded-0" type="submit" form="schedule-form" style="display: none;"><i class="fa fa-save"></i> Save</button>
-                            <button id="cancelButton" class="btn btn-default border btn-sm rounded-0" type="reset" form="schedule-form" style="display: none;"><i class="fa fa-reset"></i> Cancel</button>
+                            </div>
+                            </form>
                         </div>
                     </div>
+                </div>
 
-                    </form>
-                    <div class="card rounded-0 shadow mt-3">
-                        <div class="card-header bg-gradient bg-primary text-light mt-3">
+                <div class="card-footer">
+                    <div class="text-center">
+                        <button id="saveButton" class="btn btn-primary btn-sm rounded-0" type="submit" form="schedule-form" style="display: none;"><i class="fa fa-save"></i> Save</button>
+                        <button id="cancelButton" class="btn btn-default border btn-sm rounded-0" type="reset" form="schedule-form" style="display: none;"><i class="fa fa-reset"></i> Cancel</button>
+                    </div>
+                </div>
+
+                <div class="card rounded-0 shadow mt-3">
+                    <div class="card-header bg-gradient bg-primary text-light mt-3">
                         <h5 class="card-title">Mijn Project</h5>
-                        </div>
-                        <div class="card-body">
-                            <form action="homePage.php" method="post" id="project-form">
-                                <div class="form-group mb-2">
-                                    <label for="projectTitle" class="control-label">Titel</label>
-                                    <input type="text" class="form-control form-control-sm rounded-0" name="title"
-                                        id="projectTitle" >
-                                </div>
-                                <div class="form-group mb-2">
-                                    <label for="projectDescription" class="control-label">Beschrijving</label>
-                                    <textarea rows="3" class="form-control form-control-sm rounded-0"
-                                        name="description" id="projectDescription" ></textarea>
-                                </div>
-                                <button class="btn btn-primary btn-sm rounded-0" type="submit"
-                                    name="save_project"><i class="fa fa-save"></i> Save Project</button>
-                                <hr>
-                                <div class="mb-2">
+                    </div>
+                    <div class="card-body">
+                        <form action="homePage.php" method="post" id="project-form">
+                            <div class="form-group mb-2">
+                                <label for="projectTitle" class="control-label">Titel</label>
+                                <input type="text" class="form-control form-control-sm rounded-0" name="title" id="projectTitle">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label for="projectDescription" class="control-label">Beschrijving</label>
+                                <textarea rows="3" class="form-control form-control-sm rounded-0" name="description" id="projectDescription"></textarea>
+                            </div>
+                            <button class="btn btn-primary btn-sm rounded-0" type="submit" name="save_project"><i class="fa fa-save"></i> Save Project</button>
+                            <hr>
+                            <div class="mb-2">
                                 <label for="projectSelect" class="control-label">Selecteer een Project</label>
                                 <select class="form-control form-control-sm rounded-0" name="project_id" id="projectSelect">
                                     <?php foreach ($project_res as $projectId => $project) : ?>
@@ -242,12 +224,9 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                                <button class="btn btn-primary btn-sm rounded-0" type="submit"
-                                    name="select_project"><i class="fa fa-check"></i> Selecteer Project</button>
-                            </form>
-                        </div>
+                            <button class="btn btn-primary btn-sm rounded-0" type="submit" name="select_project"><i class="fa fa-check"></i> Selecteer Project</button>
+                        </form>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -279,6 +258,41 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                         <button type="button" class="btn btn-danger btn-sm rounded-0" id="delete" data-id="">Verwijder</button>
                         <button type="button" class="btn btn-secondary btn-sm rounded-0" data-bs-dismiss="modal">Sluiten</button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bewerkingsvenster -->
+    <div class="modal fade" tabindex="-1" data-bs-backdrop="static" id="event-edit-modal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-0">
+                <div class="modal-header rounded-0">
+                    <h5 class="modal-title">Evenement Bewerken</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body rounded-0">
+                    <form action="save_schedule.php" method="post" id="edit-event-form">
+                        <input type="hidden" name="action" value="edit_event">
+                        <input type="hidden" name="event_id" id="edit-event-id">
+                        <div class="form-group mb-2">
+                            <label for="edit-title" class="control-label">Titel</label>
+                            <input type="text" class="form-control form-control-sm rounded-0" name="title" id="edit-title" required>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label for="edit-description" class="control-label">Beschrijving</label>
+                            <textarea rows="3" class="form-control form-control-sm rounded-0" name="description" id="edit-description" required></textarea>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label for="edit-start-time" class="control-label">Startdatum</label>
+                            <input type="datetime-local" class="form-control form-control-sm rounded-0" name="start_time" id="edit-start-time" required>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label for="edit-end-time" class="control-label">Einddatum</label>
+                            <input type="datetime-local" class="form-control form-control-sm rounded-0" name="end_time" id="edit-end-time" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm rounded-0">Bijwerken</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -359,6 +373,27 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                 }
             });
         }
+        
+        $(document).on("click", "#edit", function() {
+    var eventId = $(this).data("id");
+    var event = scheds[eventId];
+    $("#edit-event-id").val(eventId);
+    $("#edit-title").val(event.title);
+    $("#edit-description").val(event.description);
+    
+    // Korte versie van de datum formattering inline
+    var formatDate = function(dateString) {
+        return new Date(dateString).toISOString().slice(0, 16);
+    };
+    
+    // Zet de startdatum en einddatum om en plaats ze in de inputvelden
+    $("#edit-start-time").val(formatDate(event.start_time)); 
+    $("#edit-end-time").val(formatDate(event.end_time)); 
+    
+    $("#event-edit-modal").modal("show");
+});
+
+
     </script>
     <script src="./js/script.js"></script>
 </body>
