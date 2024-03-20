@@ -9,10 +9,10 @@
     require("pdo.php");
 
     if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['deleted'])) {
-        $query = "SELECT `id`,`naam`,`voornaam`,`email`,`phone_number`,`admin` FROM `users` WHERE `active` = 0";
+        $query = "SELECT `name`, `phone_number`, `email`, `street`, `place`, `zip_code`, `house_number`, `province`, `country`, `VAT_number`, `projects` FROM `customers`";
         $deleted = true;
     } else {
-        $query = "SELECT `id`,`naam`,`voornaam`,`email`,`phone_number`,`admin` FROM `users` WHERE `active` = 1";
+        $query = "SELECT `name`, `phone_number`, `email`, `street`, `place`, `zip_code`, `house_number`, `province`, `country`, `VAT_number`, `projects` FROM `customers`";
         $deleted = false;
     }
 
@@ -29,136 +29,66 @@
 
     require("header.php");
 ?>
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-sm-12">
-                <span class="float-end">
-                    <?php if ($deleted): ?>
-                        <a href="userOverzicht.php"><i class="bi bi-person-heart fs-2 text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Actieve gebruikers"></i></a>
-                    <?php else: ?>
-                        <a href="userNew.php"><i class="bi bi-person-plus-fill fs-2 text success" data-bs-toggle="tooltip" data-bs-placement="top" title="Nieuwe gebruiker"></i></a>
-                        &nbsp;
-                        <a href="userOverzicht.php?deleted"><i class="bi bi-person-fill-slash fs-2 text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Verwijderde gebruikers"></i></a>
-                    <?php endif; ?>
-                </span>
-                <h3>Overzicht
-                    <?php if ($deleted) echo " verwijderde "; ?>
-                    gebruikers
-                </h3>
-                <table class="table table-hover table-striped">
-                    <tr>
-                        <th>Naam</th>
-                        <th>Voornaam</th>
-                        <th>Email</th>
-                        <th>telefoonnummer</th>
-                        <th>Admin</th>
-                        <th>Acties</th>
-                    </tr>
-                    <?php if($res->rowCount() != 0) : ?>
-                        <?php while($row = $res->fetch(PDO::FETCH_ASSOC)) : ?>
-                            <tr>
-                                <td><?php echo $row["naam"]; ?></td>
-                                <td><?php echo $row["voornaam"]; ?></td>
-                                <td><?php echo $row["email"]; ?></td>
-                                <td><?php echo $row["phone_number"]; ?></td>
-                            </tr>
-                        <?php endwhile; ?>
-                    <?php else :?>
-                        <tr><td colspan='6'>Geen gegevens gevonden</td></tr>
-                    <?php endif; ?>
+
+<div class="container mt-4">
+    <div class="row">
+        <?php while($row = $res->fetch(PDO::FETCH_ASSOC)) : ?>
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col">
+                                <th>naam</th>
+                                <input type="text" class="form-control" placeholder="<?php echo $row["name"]; ?>">
+                            </div>
+                            <div class="col">
+                                <th>Telefoon nummer</th>
+                                <input type="text" class="form-control" placeholder="<?php echo $row["phone_number"]; ?>">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <th>Email</th>
+                                <input type="text" class="form-control" placeholder="<?php echo $row["email"]; ?>">
+                            </div>
+                            <div class="col">
+                                <th>Straat</th>
+                                <input type="text" class="form-control" placeholder="<?php echo $row["street"]; ?>">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <th>Stad</th>
+                                <input type="text" class="form-control" placeholder="<?php echo $row["place"]; ?>">
+                            </div>
+                            <div class="col">
+                                <th>Postcode</th>
+                                <input type="text" class="form-control" placeholder="<?php echo $row["zip_code"]; ?>">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <th>huisnummer</th>
+                                <input type="text" class="form-control" placeholder=<?php echo $row["house_number"]; ?>>
+                            </div>
+                            <div class="col">
+                                <th>Provincie</th>
+                                <input type="text" class="form-control" placeholder="<?php echo $row["province"]; ?>">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <th>Land</th>
+                                <input type="text" class="form-control" placeholder="<?php echo $row["country"]; ?>">
+                            </div>
+                            <div class="col">
+                                <th>BTW nummer</th>
+                                <input type="text" class="form-control" placeholder="<?php echo $row["VAT_number"]; ?>">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+        <?php endwhile; ?>
     </div>
-
-    <!-- Modal delete user -->
-    <div class="modal fade" id="DeleteUser">
-        <div class="modal-dialog">
-            <div class="modal-content">
-
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h4 class="modal-title">Verwijder gebruiker</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <!-- Modal body -->
-            <div class="modal-body">
-                Ben je zeker dat je gebruiker <span id="userDEL"></span> wil verwijderen?
-            </div>
-
-            <!-- Modal footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Annuleer</button>
-                <button type="button" value="" id="KnopVerwijder" class="btn btn-danger" onclick="deactivateUser(this.value)">Ja verwijder</button>
-            </div>
-
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal reactivate user -->
-    <div class="modal fade" id="ReactivateUser">
-        <div class="modal-dialog">
-            <div class="modal-content">
-
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h4 class="modal-title">Gebruiker terug activeren</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <!-- Modal body -->
-            <div class="modal-body">
-                Ben je zeker dat je gebruiker <span id="userACT"></span> wil heractiveren?
-            </div>
-
-            <!-- Modal footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Annuleer</button>
-                <button type="button" value="" id="KnopActivate" class="btn btn-success" onclick="activateUser(this.value)">Ja heractiveer</button>
-            </div>
-
-            </div>
-        </div>
-    </div>
-
-    <script>
-        //Deleten van een user
-        function showModalDelete(email, uuid) {
-            document.getElementById('userDEL').innerHTML = email;
-            document.getElementById('KnopVerwijder').value = uuid;
-        }
-
-        function deactivateUser(id) {
-            let ajx = new XMLHttpRequest();
-            ajx.onreadystatechange = function () {
-                if (ajx.readyState == 4 && ajx.status == 200) {
-                    //console.log(ajx.responseText);
-                    location.reload();
-                }
-            };
-            ajx.open("POST", "userDelete.php", true);
-            ajx.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            ajx.send("id=" + id);
-        }
-
-        
-        //Heractiveren van een user
-        function showModalReactivate(email, uuid) {
-            document.getElementById('userACT').innerHTML = email;
-            document.getElementById('KnopActivate').value = uuid;
-        }
-
-        function activateUser(id) {
-            let ajx = new XMLHttpRequest();
-            ajx.onreadystatechange = function () {
-                if (ajx.readyState == 4 && ajx.status == 200) {
-                    //console.log(ajx.responseText);
-                    location.reload();
-                }
-            };
-            ajx.open("POST", "userActivate.php", true);
-            ajx.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            ajx.send("id=" + id);
-        }
-    </script>
+</div>

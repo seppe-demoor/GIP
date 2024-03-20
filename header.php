@@ -54,6 +54,7 @@
     <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] == true): ?>
             <a href="userOverzicht.php">overzicht gebruikers</a>
             <a href="countryOverzicht.php">overzicht landen</a>
+            <a href="customerOverzicht.php">overzicht Klanten</a>
         <!--<div class="dropdown">
             <button class="dropbtn">Users</button>
             <div class="dropdown-content">
