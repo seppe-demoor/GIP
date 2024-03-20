@@ -21,7 +21,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["save_project"])) {
         $project_id = $_POST["project_id"];
 
 
-        // Placeholder: Replace with your actual database insert logic
         $stmt = $conn->prepare("INSERT INTO `projects` (`title`, `description`) VALUES (?, ?)");
         $stmt->bind_param("ss", $title, $description);
         $stmt->execute();
@@ -36,7 +35,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["end_project"])) {
         $project_id = $_POST["project_id"];
 
 
-        // Placeholder: Replace with your actual database update logic
         $stmt = $conn->prepare("UPDATE `projects` SET `end_time` = NOW() WHERE `title` = ?");
         $stmt->bind_param("s", $title);
         $stmt->execute();
@@ -62,7 +60,7 @@ while ($row = $schedules->fetch_assoc()) {
         $row['sdate'] = 'N/A';
         $row['edate'] = 'N/A';
     }
-    $sched_res[$row['work_id']] = $row; // Gebruik 'work_id' in plaats van 'id'
+    $sched_res[$row['work_id']] = $row; 
 }
 
 // Handle Project Selection
@@ -76,7 +74,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
 // Load selected project information from session
 if (isset($_SESSION["selected_project_id"])) {
     $selectedProjectId = $_SESSION["selected_project_id"];
-    // Placeholder: Replace with your logic to fetch project details
     $selectedProject = $conn->query("SELECT * FROM `projects` WHERE `id` = $selectedProjectId")->fetch_assoc();
 }
 
@@ -208,14 +205,17 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                         <form action="homePage.php" method="post" id="project-form">
                             <div class="form-group mb-2">
                                 <label for="projectTitle" class="control-label">Titel</label>
-                                <input type="text" class="form-control form-control-sm rounded-0" name="title" id="projectTitle">
+                                <input type="text" class="form-control form-control-sm rounded-0" name="title" id="projectTitle" required>
                             </div>
                             <div class="form-group mb-2">
                                 <label for="projectDescription" class="control-label">Beschrijving</label>
-                                <textarea rows="3" class="form-control form-control-sm rounded-0" name="description" id="projectDescription"></textarea>
+                                <textarea rows="3" class="form-control form-control-sm rounded-0" name="description" id="projectDescription" required></textarea>
                             </div>
                             <button class="btn btn-primary btn-sm rounded-0" type="submit" name="save_project"><i class="fa fa-save"></i> Save Project</button>
                             <hr>
+                            </form>
+                            <form action="homePage.php" method="post" id="project-form">
+                            <div class="form-group mb-2">
                             <div class="mb-2">
                                 <label for="projectSelect" class="control-label">Selecteer een Project</label>
                                 <select class="form-control form-control-sm rounded-0" name="project_id" id="projectSelect">
