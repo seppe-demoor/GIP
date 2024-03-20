@@ -9,14 +9,22 @@
 <body>
 
 <?php
+// Inclusief het startbestand voor de sessie
 require("start.php");
+
+// Controleren of de gebruiker is aangemeld
 if (!isset($_SESSION['email'])) {
-    //user is reeds aangemeld
+    // Gebruiker is nog niet aangemeld, doorsturen naar de inlogpagina
     header("Location: loginPage.php");
     exit;
 }
+
+// Controleren of het verzoek een POST-verzoek is
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Inclusief het PDO-bestand voor databaseverbinding
     require("pdo.php");
+    
+    // Ontvangen van de formuliergegevens
     $name = trim($_POST["name"]);
     $tax_rate = trim($_POST["tax_rate"]);
     $currency = trim($_POST["currency"]);
@@ -24,25 +32,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $iso_code = trim($_POST["iso_code"]);
     $eu = isset($_POST["is_eu"]) ? 1 : 0;
 
+    // Query voor het invoegen van het nieuwe land in de database
     $query = "INSERT INTO `countries` (name, tax_rate, currency, code, iso_code, is_eu)
               VALUES (:name, :tax_rate, :currency, :code, :iso_code, :is_eu)";
+    
+    // Array met de te binden waarden voor de query
     $values = [':name' => $name, ':tax_rate'=> $tax_rate,':currency'=> $currency, ':code'=>$code, ':iso_code'=>$iso_code, ':is_eu'=> $eu];
+    
     try {
-    $res = $pdo->prepare($query);
-    $res->execute($values);
+        // Voorbereiden van de query en uitvoeren met de ontvangen gegevens
+        $res = $pdo->prepare($query);
+        $res->execute($values);
     } catch (PDOException $e) {
-        //error in query
+        // Foutafhandeling bij een fout in de query
         echo "Query error:" . $e;
         die();
     }
+    
+    // Doorsturen naar het overzicht van landen na succesvol toevoegen
     header("Location: countryOverzicht.php");
 }
+
+// Inclusief het headerbestand voor de opmaak van de pagina
 require("header.php");
 ?>
     <div class="container mt-5">
         <div class="row">
             <div class="col-sm-6">
-            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>"> 
+                <!-- Formulier voor het invoeren van de gegevens voor een nieuw land -->
+                <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>"> 
                     <div class="mb-3">
                         <label for="name" class="form-label">land</label>
                         <input type="text" class="form-control" id="name" name="name" required>
@@ -75,3 +93,5 @@ require("header.php");
             </div>
         </div>
     </div>
+</body>
+</html>

@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <?php
     require("start.php");
-
+    // Controleren of de gebruiker is ingelogd als beheerder
     if (!isset($_SESSION["admin"]) && $_SESSION["admin"] == 0) {
         header("Location: loginPage.php");
     }
 
     require("pdo.php");
 
+    // Bepalen van de query op basis van de URL en instellingen voor actieve of verwijderde landen
     if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['deleted'])) {
         $query = "SELECT `id`,`name`, `tax_rate`, `currency`, `code`, `iso_code` FROM `countries` WHERE `active` = 0";
         $deleted = true;

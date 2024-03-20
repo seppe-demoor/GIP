@@ -5,6 +5,7 @@ require("pdo.php");
 // Set locale to Dutch
 setlocale(LC_TIME, 'nl_NL');
 
+// Als de gebruiker niet is ingelogd, doorsturen naar de inlogpagina
 
 if (!isset($_SESSION["email"])) {
     header("Location: loginPage.php");
@@ -14,38 +15,40 @@ if (!isset($_SESSION["email"])) {
 require("header.php");
 
 $project_id = null;
+// Logica voor het opslaan van een project
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["save_project"])) {
     if (isset($_POST["title"]) && isset($_POST["description"])) {
         $title = $_POST["title"];
         $description = $_POST["description"];
         $project_id = $_POST["project_id"];
 
-
+        // Voorbereiden en uitvoeren van de SQL-query voor het invoegen van een nieuw project
         $stmt = $conn->prepare("INSERT INTO `projects` (`title`, `description`) VALUES (?, ?)");
         $stmt->bind_param("ss", $title, $description);
         $stmt->execute();
     }
 }
 
-// Project End Logic
+// Logica voor het beëindigen van een project
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["end_project"])) {
     if (isset($_POST["title"]) && isset($_POST["description"])) {
         $title = $_POST["title"]; 
         $description = $_POST["description"];
         $project_id = $_POST["project_id"];
 
-
+        // Voorbereiden en uitvoeren van de SQL-query voor het bijwerken van het eindtijd van een project
         $stmt = $conn->prepare("UPDATE `projects` SET `end_time` = NOW() WHERE `title` = ?");
         $stmt->bind_param("s", $title);
         $stmt->execute();
     }
 }
-
+// Ophalen van schema's en projecten uit de database
 $schedules = $conn->query("SELECT l.id as work_id, p.id as project_id, p.title, p.description, l.start_time, l.end_time FROM projects p JOIN work_time l ON p.id = l.project_id;");
 $projects = $conn->query("SELECT * FROM `projects`");
 $sched_res = [];
 $project_res = [];
 
+// Verwerken van de queryresultaten en opslaan in arrays voor later gebruik
 while ($row = $projects->fetch_assoc()) {
     $row['title'] = $row['title'];
     $row['description'] = $row['description'];
@@ -63,7 +66,7 @@ while ($row = $schedules->fetch_assoc()) {
     $sched_res[$row['work_id']] = $row; 
 }
 
-// Handle Project Selection
+// Hanteren van projectselectie
 $selectedProject = null;
 $selectedProjectId = null;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
@@ -71,18 +74,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
     $_SESSION["selected_project_id"] = $selectedProjectId;
 }
 
-// Load selected project information from session
+// Laden van geselecteerde projectinformatie uit de sessie
 if (isset($_SESSION["selected_project_id"])) {
     $selectedProjectId = $_SESSION["selected_project_id"];
     $selectedProject = $conn->query("SELECT * FROM `projects` WHERE `id` = $selectedProjectId")->fetch_assoc();
 }
 
-// Set green bar visibility in session when starting project
+// Zichtbaarheid van de groene balk instellen in de sessie bij het starten van een project
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["start_project"])) {
     $_SESSION["green_bar_visible"] = true;
 }
 
-// Load green bar visibility from session
+// Laden van de zichtbaarheid van de groene balk uit de sessie
 $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_visible"] : false;
 ?>
 
@@ -190,19 +193,22 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                     </div>
                 </div>
 
+                <!-- Kaartvoettekst voor knoppen -->
                 <div class="card-footer">
                     <div class="text-center">
                         <button id="saveButton" class="btn btn-primary btn-sm rounded-0" type="submit" form="schedule-form" style="display: none;"><i class="fa fa-save"></i> Save</button>
                         <button id="cancelButton" class="btn btn-default border btn-sm rounded-0" type="reset" form="schedule-form" style="display: none;"><i class="fa fa-reset"></i> Cancel</button>
                     </div>
                 </div>
-
+                
+                <!-- Kaart voor het weergeven van projecten -->
                 <div class="card rounded-0 shadow mt-3">
                     <div class="card-header bg-gradient bg-primary text-light mt-3">
                         <h5 class="card-title">Mijn Project</h5>
                     </div>
                     <div class="card-body">
-                        <form action="homePage.php" method="post" id="project-form">
+                            <!-- Formulier voor het selecteren van een project -->
+                            <form action="homePage.php" method="post" id="project-form">
                             <div class="form-group mb-2">
                                 <label for="projectTitle" class="control-label">Titel</label>
                                 <input type="text" class="form-control form-control-sm rounded-0" name="title" id="projectTitle" required>
@@ -230,7 +236,8 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                 </div>
             </div>
         </div>
-    </div>
+    </div>    
+    <!-- Modaal venster voor kalenderdetails -->
     <div class="modal fade" tabindex="-1" data-bs-backdrop="static" id="event-details-modal">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-0">
@@ -271,7 +278,8 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                     <h5 class="modal-title">Evenement Bewerken</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body rounded-0">
+                <div class="modal-body rounded-0">                    
+                    <!-- Formulier voor het bewerken van een evenement -->
                     <form action="save_schedule.php" method="post" id="edit-event-form">
                         <input type="hidden" name="action" value="edit_event">
                         <input type="hidden" name="event_id" id="edit-event-id">
