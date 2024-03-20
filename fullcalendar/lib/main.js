@@ -600,14 +600,15 @@ var FullCalendar = (function (exports) {
         var days = Math.round(diffDays(firstWeekStart, dayStart));
         return Math.floor(days / 7) + 1; // zero-indexed
     }
-    // start-of-first-week - start-of-year
+    
     function firstWeekOffset(year, dow, doy) {
         // first-week day -- which january is always in the first week (4 for iso, 1 for other)
-        var fwd = 7 + dow - doy;
+        var fwd = 8 - dow; // Monday is the first day of the week
         // first-week day local weekday -- which local weekday is fwd
         var fwdlw = (7 + arrayToUtcDate([year, 0, fwd]).getUTCDay() - dow) % 7;
         return -fwdlw + fwd - 1;
     }
+    
     // Array Conversion
     function dateToLocalArray(date) {
         return [
