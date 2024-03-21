@@ -60,4 +60,6 @@ require("header.php");
             <a href="userOverzicht.php" class="btn btn-secondary">Annuleren</a>
         </div>
     </div>
-</div>
+</div><?php
+require("footer.php");
+?>

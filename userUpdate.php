@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <?php
 require("start.php");
 
@@ -84,3 +83,6 @@ require("header.php");
             </div>
         </div>
     </div>
+<?php
+require("footer.php");
+?>

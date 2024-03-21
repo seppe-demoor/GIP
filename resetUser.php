@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <?php
 // reset pw door admin
 
@@ -103,3 +102,6 @@ Admin van de website.";
         </div>
     </div>
     </div>
+<?php
+require("footer.php");
+?>

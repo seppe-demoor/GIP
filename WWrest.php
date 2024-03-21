@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <?php
 // Reset voor gebruiker
 require("start.php");
@@ -149,5 +148,6 @@ require("header.php");
             </div>
         </div>
     </div>
-</body>
-</html>
+<?php
+    require("footer.php");
+?>

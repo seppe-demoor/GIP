@@ -1,14 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nieuw land maken</title>
-</head>
-
-<body>
-
 <?php
+require("header.php");
 // Inclusief het startbestand voor de sessie
 require("start.php");
 
@@ -54,7 +45,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 // Inclusief het headerbestand voor de opmaak van de pagina
-require("header.php");
 ?>
     <div class="container mt-5">
         <div class="row">
@@ -93,5 +83,6 @@ require("header.php");
             </div>
         </div>
     </div>
-</body>
-</html>
+<?php
+    require("footer.php");
+?>

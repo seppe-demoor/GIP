@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <?php
     require("start.php");
 
@@ -92,3 +91,6 @@
         <?php endwhile; ?>
     </div>
 </div>
+<?php
+require("footer.php");
+?>

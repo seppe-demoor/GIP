@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <?php
     require("start.php");
 
@@ -172,3 +171,6 @@
             ajx.send("id=" + id);
         }
     </script>
+<?php
+require("footer.php");
+?>

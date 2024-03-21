@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
 <?php
 require("start.php");
 
@@ -172,5 +170,6 @@ require("header.php");
         }
     }
 </script>
-</body>
-</html>
+<?php
+require("footer.php");
+?>

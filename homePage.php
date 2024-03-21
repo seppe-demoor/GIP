@@ -89,51 +89,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["start_project"])) {
 $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_visible"] : false;
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scheduling</title>
-    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
-        integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
-    <link rel="stylesheet" href="./css/bootstrap.min.css">
-    <link rel="stylesheet" href="./fullcalendar/lib/main.min.css">
-    <script src="./js/jquery-3.6.0.min.js"></script>
-    <script src="./js/bootstrap.min.js"></script>
-    <script src="./fullcalendar/lib/main.min.js"></script>
-    <style>
-        :root {
-            --bs-success-rgb: 71, 222, 152 !important;
-        }
-
-        html,
-        body {
-            height: 100%;
-            width: 100%;
-        }
-
-        .btn-info.text-light:hover,
-        .btn-info.text-light:focus {
-            background: #000;
-        }
-
-        table,
-        tbody,
-        td,
-        tfoot,
-        th,
-        thead,
-        tr {
-            border-color: #ededed !important;
-            border-style: solid;
-            border-width: 1px !important;
-        }
-    </style>
-</head>
-
 <body class="bg-light">
     <div id="green-bar" class="alert alert-success text-center" style="display: none;">
         <strong>Je <?php echo isset($selectedProject) ? $selectedProject['title'] : 'geen project' ?> is nog aan het lopen</strong>
@@ -404,6 +359,6 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
 
     </script>
     <script src="./js/script.js"></script>
-</body>
-
-</html>
+<?php
+require("footer.php");
+?>

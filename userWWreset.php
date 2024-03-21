@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <?php
 require("start.php");
 require("pdo.php");
@@ -156,5 +155,6 @@ require("header.php");
             </div>
         </div>
     </div>
-</body>
-</html>
+<?php
+    require("footer.php");
+?>

@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <?php
 require("start.php");
 require("pdo.php");
@@ -11,4 +10,5 @@ if (!isset($_SESSION["email"])) {
 }
 
 require("header.php");
+require("footer.php");
 ?>
