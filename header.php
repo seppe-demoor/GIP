@@ -40,11 +40,12 @@
         .header-btn{
             text-decoration: none;
             padding: 0.5rem 0.8rem;
-            background-color: red;
+            background-color: white;
             color: white;
             border-radius: 0.1rem;
             border: none;
             margin: 0rem 0.5rem 0rem 0.5rem;
+            height: 40px;
         }
 
         .navbar a:hover {
@@ -104,7 +105,7 @@
 <body>
 
 <div class="navbar">
-    <a class="active header-btn" href="homePage.php">Home</a>
+    <img src="NWNSoftware.png" class="active header-btn" href="homePage.php">
 
     <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] == true): ?>
         <div class="dropdown">
@@ -135,14 +136,3 @@
         <a href="logoutPage.php" class="header-btn">Logout</a>
     <?php endif; ?>
 </div>
-
-
-
- 
-
-
-Op 2024-03-21 13:36:15 schreef Seppe De Moor - 6INFO
-
-
-
-<bootstrap.min.css>
