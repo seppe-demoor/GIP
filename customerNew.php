@@ -1,7 +1,10 @@
 <?php
+require "vendor/autoload.php";
+use Ramsey\Uuid\Uuid;
+
 require("header.php");
-// Inclusief het startbestand voor de sessie
 require("start.php");
+require("pdo.php");
 
 // Controleren of de gebruiker is aangemeld
 if (!isset($_SESSION['email'])) {
@@ -10,79 +13,169 @@ if (!isset($_SESSION['email'])) {
     exit;
 }
 
-// Controleren of het verzoek een POST-verzoek is
+// Query voor het ophalen van landen
+$query_countries = "SELECT `id`,`name` FROM `countries`";
+
+try {
+    // Voorbereiden van de query en uitvoeren
+    $res_countries = $pdo->query($query_countries);
+} catch (PDOException $e) {
+    // Foutafhandeling bij een fout in de query
+    echo "Query error:" . $e->getMessage();
+    die();
+}
+
+// Query voor het ophalen van projecten
+$query_projects = "SELECT `id`,`title` FROM `projects`";
+
+try {
+    // Voorbereiden van de query en uitvoeren
+    $res_projects = $pdo->query($query_projects);
+} catch (PDOException $e) {
+    // Foutafhandeling bij een fout in de query
+    echo "Query error:" . $e->getMessage();
+    die();
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Inclusief het PDO-bestand voor databaseverbinding
-    require("pdo.php");
+    $id = Uuid::uuid4();
     
     // Ontvangen van de formuliergegevens
     $name = trim($_POST["name"]);
-    $tax_rate = trim($_POST["tax_rate"]);
-    $currency = trim($_POST["currency"]);
-    $code = trim($_POST["code"]);
-    $iso_code = trim($_POST["iso_code"]);
-    $eu = isset($_POST["is_eu"]) ? 1 : 0;
+    $phone_number = trim($_POST["phone_number"]);
+    $email = trim($_POST["email"]);
+    $street = trim($_POST["street"]);
+    $place = trim($_POST["place"]);
+    $zip_code = trim($_POST["zip_code"]);
+    $house_number = trim($_POST["house_number"]);
+    $province = trim($_POST["province"]);
+    $country = trim($_POST["country"]); // Het ID van het geselecteerde land
+    $VAT_number = trim($_POST["VAT_number"]);
+    $projects = trim($_POST["projects"]);
 
-    // Query voor het invoegen van het nieuwe land in de database
-    $query = "INSERT INTO `countries` (name, tax_rate, currency, code, iso_code, is_eu)
-              VALUES (:name, :tax_rate, :currency, :code, :iso_code, :is_eu)";
+    // Query voor het invoegen van de nieuwe klant in de database
+    $query_insert_customer = "INSERT INTO `customers` (id,name, phone_number, email, street, place, zip_code, house_number, province, country, VAT_number, projects )
+              VALUES (:id,:name, :phone_number, :email, :street, :place, :zip_code, :house_number, :province, :country, :VAT_number, :projects)";
     
     // Array met de te binden waarden voor de query
-    $values = [':name' => $name, ':tax_rate'=> $tax_rate,':currency'=> $currency, ':code'=>$code, ':iso_code'=>$iso_code, ':is_eu'=> $eu];
+    $values = [
+        ':id' => $id,
+        ':name' => $name, 
+        ':phone_number' => $phone_number, 
+        ':email' => $email, 
+        ':street' => $street, 
+        ':place' => $place,
+        ':zip_code' => $zip_code, 
+        ':house_number' => $house_number, 
+        ':province' => $province, 
+        ':country' => $country, // Hier wordt het ID van het geselecteerde land gebruikt
+        ':VAT_number' => $VAT_number, 
+        ':projects' => $projects
+    ];
     
     try {
-        // Voorbereiden van de query en uitvoeren met de ontvangen gegevens
-        $res = $pdo->prepare($query);
-        $res->execute($values);
+        // Voorbereiden van de query en uitvoeren
+        $res_insert_customer = $pdo->prepare($query_insert_customer);
+        $res_insert_customer->execute($values);
+        
+        // Doorsturen naar het overzicht van landen na succesvol toevoegen
+        header("Location: customerOverzicht.php");
+        exit;
     } catch (PDOException $e) {
         // Foutafhandeling bij een fout in de query
-        echo "Query error:" . $e;
+        echo "Query error:" . $e->getMessage();
         die();
     }
-    
-    // Doorsturen naar het overzicht van landen na succesvol toevoegen
-    header("Location: countryOverzicht.php");
 }
 
 // Inclusief het headerbestand voor de opmaak van de pagina
 ?>
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-sm-6">
-                <!-- Formulier voor het invoeren van de gegevens voor een nieuw land -->
-                <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>"> 
-                    <div class="mb-3">
-                        <label for="name" class="form-label">land</label>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Formulier voor het invoeren van de gegevens voor een nieuwe klant -->
+            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>"> 
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="name" class="form-label">Naam</label>
                         <input type="text" class="form-control" id="name" name="name" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="tax_rate" class="form-label">tax_rate</label>
-                        <input type="text" class="form-control" id="tax_rate" name="tax_rate" pattern="[0-50]+" required>
+                    <div class="col-md-6 mb-3">
+                        <label for="phone_number" class="form-label">Telefoon nummer</label>
+                        <input type="text" class="form-control" id="phone_number" name="phone_number" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="currency" class="form-label">currency</label>
-                        <input type="text" class="form-control" id="currency" name="currency" maxlength="3" required>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="code" class="form-label">code</label>
-                        <input type="text" class="form-control" id="code" name="code" maxlength="2" required>
+                    <div class="col-md-6 mb-3">
+                        <label for="street" class="form-label">Straat</label>
+                        <input type="text" class="form-control" id="street" name="street" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="iso_code" class="form-label">iso_code</label>
-                        <input type="text" class="form-control" id="iso_code" name="iso_code" maxlength="3" required>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="place" class="form-label">Plaats</label>
+                        <input type="text" class="form-control" id="place" name="place" required>
                     </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="eu" name="eu">
-                        <label class="form-check-label" for="eu">EU</label>
+                    <div class="col-md-6 mb-3">
+                        <label for="zip_code" class="form-label">Postcode</label>
+                        <input type="text" class="form-control" id="zip_code" name="zip_code" required>
                     </div>
-                    <br>
-                    <button type="submit" class="btn btn-success">land aanmaken</button>
-                </form>
-            </div>
-            <div class="col-sm-6">
-            </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="house_number" class="form-label">Huis nummer</label>
+                        <input type="text" class="form-control" id="house_number" name="house_number" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="province" class="form-label">Provincie</label>
+                        <input type="text" class="form-control" id="province" name="province" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="country" class="form-label">Land</label>
+                        <select class="form-control" id="country" name="country" required>
+                            <option value="">Selecteer een land</option>
+                            <?php
+                            if ($res_countries->rowCount() > 0) {
+                                while ($row = $res_countries->fetch(PDO::FETCH_ASSOC)) {
+                                    echo "<option value='" . $row['id'] . "'>" . $row['name'] . "</option>"; // Hier wordt het ID van het land gebruikt
+                                }
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="VAT_number" class="form-label">BTW nummer</label>
+                        <input type="text" class="form-control" id="VAT_number" name="VAT_number" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="projects" class="form-label">Projecten</label>
+                        <select class="form-control" id="projects" name="projects" required>
+                            <option value="">Selecteer een project</option>
+                            <?php
+                            if ($res_projects->rowCount() > 0) {
+                                while ($row = $res_projects->fetch(PDO::FETCH_ASSOC)) {
+                                    echo "<option value='" . $row['id'] . "'>" . $row['title'] . "</option>"; // Hier wordt het ID van het project gebruikt
+                                }
+                            }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+                <br>
+                <button type="submit" class="btn btn-danger">klant aanmaken</button>
+            </form>
         </div>
     </div>
+</div>
+
 <?php
-    require("footer.php");
+require("footer.php");
 ?>

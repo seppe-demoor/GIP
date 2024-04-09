@@ -1,4 +1,6 @@
 <?php
+require "vendor/autoload.php";
+use Ramsey\Uuid\Uuid;
 require("header.php");
 // Inclusief het startbestand voor de sessie
 require("start.php");
@@ -15,7 +17,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Inclusief het PDO-bestand voor databaseverbinding
     require("pdo.php");
     
-    // Ontvangen van de formuliergegevens
+    $id = Uuid::uuid4();
+    //printf("ID example: %s", $id->toString());
     $name = trim($_POST["name"]);
     $tax_rate = trim($_POST["tax_rate"]);
     $currency = trim($_POST["currency"]);

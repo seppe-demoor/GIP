@@ -40,8 +40,17 @@
         .header-btn{
             text-decoration: none;
             padding: 0.5rem 0.8rem;
-            background-color: white;
+            background-color: #333;
             color: white;
+            border-radius: 0.1rem;
+            border: none;
+            margin: 0rem 0.5rem 0rem 0.5rem;
+            height: 40px;
+        }
+        .home-btn{
+            text-decoration: none;
+            padding: 0.5rem 0.8rem;
+            background-color: white;
             border-radius: 0.1rem;
             border: none;
             margin: 0rem 0.5rem 0rem 0.5rem;
@@ -65,9 +74,6 @@
 .dropdown {
   position: relative;
   display: inline-block;
-}
-.dropdown-btn{
-
 }
 /* Dropdown Content (Hidden by Default) */
 .dropdown-content {
@@ -105,7 +111,10 @@
 <body>
 
 <div class="navbar">
-    <img src="NWNSoftware.png" class="active header-btn" href="homePage.php">
+    <a href="homePage.php">
+        <img src="NWNSoftware.png" class="home-btn"/>
+    </a>
+
 
     <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] == true): ?>
         <div class="dropdown">
@@ -113,20 +122,9 @@
   <div class="dropdown-content">
             <a class="dropdown-btn" href="userOverzicht.php">Gebruikers</a>
             <a class="dropdown-btn" href="countryOverzicht.php">Landen</a>
+            <a class="dropdown-btn" href="customerOverzicht.php">klanten</a>
   </div>
 </div>
-           
-        <!--<div class="dropdown">
-            <button class="dropbtn">Users</button>
-            <div class="dropdown-content">
-                <a href="beveiligd2.php">admin pagina</a>
-                <a href="facturen.php">facturen</a>
-                <a href="session.php" target="_blank">bekijk session</a>    
-                <a href="userNew.php">niewe user</a>
-                <a href="userWWreset.php">reset password</a>
-                <a href="userOverzicht2.0.php">overzicht user</a>
-            </div>
-        </div>-->
     <?php endif; ?>
     <?php ?>
 
