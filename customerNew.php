@@ -25,18 +25,6 @@ try {
     die();
 }
 
-// Query voor het ophalen van projecten
-$query_projects = "SELECT `id`,`title` FROM `projects`";
-
-try {
-    // Voorbereiden van de query en uitvoeren
-    $res_projects = $pdo->query($query_projects);
-} catch (PDOException $e) {
-    // Foutafhandeling bij een fout in de query
-    echo "Query error:" . $e->getMessage();
-    die();
-}
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id = Uuid::uuid4();
     
@@ -51,11 +39,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $province = trim($_POST["province"]);
     $country = trim($_POST["country"]); // Het ID van het geselecteerde land
     $VAT_number = trim($_POST["VAT_number"]);
-    $projects = trim($_POST["projects"]);
+    $title = trim($_POST["title"]);
+    $description = trim($_POST["description"]);
 
     // Query voor het invoegen van de nieuwe klant in de database
-    $query_insert_customer = "INSERT INTO `customers` (id,name, phone_number, email, street, place, zip_code, house_number, province, country, VAT_number, projects )
-              VALUES (:id,:name, :phone_number, :email, :street, :place, :zip_code, :house_number, :province, :country, :VAT_number, :projects)";
+    $query_customer = "INSERT INTO `customers` (id,name, phone_number, email, street, place, zip_code, house_number, province, country, VAT_number)
+              VALUES (:id,:name, :phone_number, :email, :street, :place, :zip_code, :house_number, :province, :country, :VAT_number)";
     
     // Array met de te binden waarden voor de query
     $values = [
@@ -69,16 +58,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         ':house_number' => $house_number, 
         ':province' => $province, 
         ':country' => $country, // Hier wordt het ID van het geselecteerde land gebruikt
-        ':VAT_number' => $VAT_number, 
-        ':projects' => $projects
+        ':VAT_number' => $VAT_number
+        
     ];
     
     try {
         // Voorbereiden van de query en uitvoeren
-        $res_insert_customer = $pdo->prepare($query_insert_customer);
-        $res_insert_customer->execute($values);
+        $res_customer = $pdo->prepare($query_customer);
+        $res_customer->execute($values);
+
+        // Insert the project after inserting the customer
+        $customer_id = $pdo->lastInsertId(); // Get the last inserted customer ID
         
-        // Doorsturen naar het overzicht van landen na succesvol toevoegen
+        // Query for inserting the project
+        $query_project = "INSERT INTO `projects` (`id`, `title`, `description`) VALUES (:id, :title, :description)";
+        
+        // Values for the project insert query
+        $project_values = [
+            ':id' => $customer_id,
+            ':title' => $title,
+            ':description' => $description
+        ];
+
+        // Prepare and execute the project insert query
+        $res_project = $pdo->prepare($query_project);
+        $res_project->execute($project_values);
+        
+        // Redirect to customer overview after successful insertion
         header("Location: customerOverzicht.php");
         exit;
     } catch (PDOException $e) {
@@ -154,28 +160,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <input type="text" class="form-control" id="VAT_number" name="VAT_number" required>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="projects" class="form-label">Projecten</label>
-                        <select class="form-control" id="projects" name="projects" required>
-                            <option value="">Selecteer een project</option>
-                            <?php
-                            if ($res_projects->rowCount() > 0) {
-                                while ($row = $res_projects->fetch(PDO::FETCH_ASSOC)) {
-                                    echo "<option value='" . $row['id'] . "'>" . $row['title'] . "</option>"; // Hier wordt het ID van het project gebruikt
-                                }
-                            }
-                            ?>
-                        </select>
-                    </div>
+                <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <!-- Formulier voor het invoeren van de gegevens voor een nieuwe klant -->
+                    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>"> 
+                        <!-- Customer Details -->
+                        <!-- Your customer form fields here -->
+                        
+                        <!-- Project Details -->
+                        <div class="form-group mb-2">
+                            <label for="projectTitle" class="control-label">Titel</label>
+                            <input type="text" class="form-control form-control-sm rounded-0" name="title" id="projectTitle" required>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label for="projectDescription" class="control-label">Beschrijving</label>
+                            <textarea rows="3" class="form-control form-control-sm rounded-0" name="description" id="projectDescription" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-danger" name="save_customer">Klant aanmaken</button>
+                    </form>
                 </div>
-                <br>
-                <button type="submit" class="btn btn-danger">klant aanmaken</button>
-            </form>
+            </div>
         </div>
-    </div>
-</div>
-
-<?php
-require("footer.php");
-?>
+    <?php
+     require("footer.php");
+    ?>
