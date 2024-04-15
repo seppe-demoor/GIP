@@ -39,8 +39,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $province = trim($_POST["province"]);
     $country = trim($_POST["country"]); // Het ID van het geselecteerde land
     $VAT_number = trim($_POST["VAT_number"]);
-    $title = trim($_POST["title"]);
-    $description = trim($_POST["description"]);
 
     // Query voor het invoegen van de nieuwe klant in de database
     $query_customer = "INSERT INTO `customers` (id,name, phone_number, email, street, place, zip_code, house_number, province, country, VAT_number)
@@ -66,23 +64,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Voorbereiden van de query en uitvoeren
         $res_customer = $pdo->prepare($query_customer);
         $res_customer->execute($values);
-
-        // Insert the project after inserting the customer
-        $customer_id = $pdo->lastInsertId(); // Get the last inserted customer ID
-        
-        // Query for inserting the project
-        $query_project = "INSERT INTO `projects` (`id`, `title`, `description`) VALUES (:id, :title, :description)";
-        
-        // Values for the project insert query
-        $project_values = [
-            ':id' => $customer_id,
-            ':title' => $title,
-            ':description' => $description
-        ];
-
-        // Prepare and execute the project insert query
-        $res_project = $pdo->prepare($query_project);
-        $res_project->execute($project_values);
         
         // Redirect to customer overview after successful insertion
         header("Location: customerOverzicht.php");
@@ -160,29 +141,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <input type="text" class="form-control" id="VAT_number" name="VAT_number" required>
                     </div>
                 </div>
-                <div class="container mt-5">
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <!-- Formulier voor het invoeren van de gegevens voor een nieuwe klant -->
-                    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>"> 
-                        <!-- Customer Details -->
-                        <!-- Your customer form fields here -->
-                        
-                        <!-- Project Details -->
-                        <div class="form-group mb-2">
-                            <label for="projectTitle" class="control-label">Titel</label>
-                            <input type="text" class="form-control form-control-sm rounded-0" name="title" id="projectTitle" required>
-                        </div>
-                        <div class="form-group mb-2">
-                            <label for="projectDescription" class="control-label">Beschrijving</label>
-                            <textarea rows="3" class="form-control form-control-sm rounded-0" name="description" id="projectDescription" required></textarea>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-danger" name="save_customer">Klant aanmaken</button>
-                    </form>
-                </div>
-            </div>
+                <button type="submit" class="btn btn-danger" name="save_customer">Klant aanmaken</button>
+            </form>
         </div>
-    <?php
-     require("footer.php");
-    ?>
+    </div>
+</div>
+<?php
+    require("footer.php");
+?>
