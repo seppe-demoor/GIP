@@ -14,21 +14,6 @@ if (!isset($_SESSION["email"])) {
 
 require("header.php");
 
-$project_id = null;
-// Logica voor het opslaan van een project
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["save_project"])) {
-    if (isset($_POST["title"]) && isset($_POST["description"])) {
-        $title = $_POST["title"];
-        $description = $_POST["description"];
-        $project_id = $_POST["project_id"];
-
-        // Voorbereiden en uitvoeren van de SQL-query voor het invoegen van een nieuw project
-        $stmt = $conn->prepare("INSERT INTO `projects` (`title`, `description`) VALUES (?, ?)");
-        $stmt->bind_param("ss", $title, $description);
-        $stmt->execute();
-    }
-}
-
 // Logica voor het beëindigen van een project
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["end_project"])) {
     if (isset($_POST["title"]) && isset($_POST["description"])) {
@@ -77,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
 // Laden van geselecteerde projectinformatie uit de sessie
 if (isset($_SESSION["selected_project_id"])) {
     $selectedProjectId = $_SESSION["selected_project_id"];
-    $selectedProject = $conn->query("SELECT * FROM `projects` WHERE `id` = $selectedProjectId")->fetch_assoc();
+    $selectedProject = $conn->query("SELECT title, description FROM `projects` WHERE `id` = '$selectedProjectId'")->fetch_assoc();
 }
 
 // Zichtbaarheid van de groene balk instellen in de sessie bij het starten van een project

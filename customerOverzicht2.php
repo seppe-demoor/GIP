@@ -1,7 +1,5 @@
 <?php
 require("start.php");
-require "vendor/autoload.php";
-use Ramsey\Uuid\Uuid;
 
 // Check if the user is logged in as admin
 if (!isset($_SESSION["admin"]) || $_SESSION["admin"] != 1) {
@@ -26,15 +24,13 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["id"])) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $id = Uuid::uuid4()->toString();
     
     $title = trim($_POST["title"]);
     $description = trim($_POST["description"]);
     $customer_id = $_GET["id"]; // Assigning customer_id from GET request
 
-    $query_projects = "INSERT INTO projects (id, title, description, customer_id) VALUES (:id, :title, :description, :customer_id)";
+    $query_projects = "INSERT INTO projects (title, description, customer_id) VALUES (:title, :description, :customer_id)";
     $values = [
-        ':id' => $id,
         ':title' => $title, 
         ':description' => $description, 
         ':customer_id' => $customer_id
@@ -135,7 +131,7 @@ require("header.php");
                 </div>
             </div>
         </div>
-        <form method="post" action="">
+        <form method="post">
             <div class="row mb-3">
                 <div class="form-group mb-2">
                     <label for="projectTitle" class="control-label">Titel</label>
@@ -146,6 +142,7 @@ require("header.php");
                     <textarea rows="3" class="form-control form-control-sm rounded-0" name="description" id="projectDescription" required></textarea>
                 </div>
                 <button class="btn btn-primary btn-sm rounded-0" type="submit" name="save_project"><i class="fa fa-save"></i> Save Project</button>
+                
             </div>
         </form>
     </div>
