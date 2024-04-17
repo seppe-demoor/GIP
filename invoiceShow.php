@@ -172,7 +172,7 @@ if (is_numeric($totalHours)) {
 
             <div style="width: 15%;">
                 <h3 style="font-size: 16px; color: grey;">Prijs excl. btw</h3>
-                <p class="small">€65,00</p>
+                <p class="small">€65.00</p>
             </div>
 
             <div style="width: 13%;">
