@@ -28,19 +28,19 @@
         <div class="row">
             <div class="col-sm-12">
                 <span class="float-end">
-                        <a href="customerNew.php">maak nieuwe klant</a>
+                        <a href="customerNew.php" class="bi bi-person-plus text-succes fs-4"></a>
                 </span>
                 <table class="table table-hover table-striped">
                     <tr>
                         <th>Naam</th>
-                        <th></th>
+                        <th>inspecteren</th>
                     </tr>
                     <?php if($res->rowCount() != 0) : ?>
                         <?php while($row = $res->fetch(PDO::FETCH_ASSOC)) : ?>
                             <tr>
                                 <td><?php echo $row["name"]; ?></td>
                                 <td>
-                                    <a href="customerOverzicht2.php?id=<?php echo$row["id"];?>">inspecteren</a>
+                                    <a href="customerOverzicht2.php?id=<?php echo$row["id"];?>"class="bi bi-eye text-succes fs-4"></a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>

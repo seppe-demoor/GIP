@@ -17,6 +17,13 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["id"])) {
         $stmt = $pdo->prepare("SELECT c.name, c.phone_number, c.email, c.street, c.place, c.zip_code, c.house_number, c.province, c.country, c.VAT_number, p.id AS project_id, p.title, p.description, p.customer_id FROM customers c LEFT JOIN projects p ON c.id = p.customer_id WHERE c.id = :id");
         $stmt->execute(['id' => $customer_id]);
         $res = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Haal de landnaam op op basis van het country ID
+        $stmt_country = $pdo->prepare("SELECT name FROM countries WHERE id = :country");
+        $stmt_country->execute(['country' => $res["country"]]);
+        $country = $stmt_country->fetch(PDO::FETCH_ASSOC)["name"];
+        
+        $res["country"] = $country; // Voeg de landnaam toe aan $res array
     } catch (PDOException $e) {
         echo 'Query error.';
         die();
@@ -57,6 +64,7 @@ require("header.php");
 ?>
 
 <div class="container mt-4">
+    <a href="customerOverzicht.php" class="btn btn-secondary mb-4"><i class="fa fa-arrow-left"></i> Terug</a>
     <div class="row">
         <div class="col-md-6">
             <div class="card mb-4">
@@ -115,30 +123,45 @@ require("header.php");
             </div>
         </div>
         <div class="col-md-6">
-            <div class="container mt-4">
-                <div class="mb-4">
-                    <h2>Projecten</h2>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                <div class="row mb-3">
-                                    <div class="col">
-                                        <label for="title">Titel</label>
-                                        <input type="text" id="title" class="form-control" value="<?php echo $res["title"]; ?>">
-                                    </div>
-                                    <div class="col">
-                                        <label for="description">Beschrijving</label>
-                                        <input type="text" id="description" class="form-control" value="<?php echo $res["description"]; ?>">
-                                    </div>
-                                </div>
+    <div class="container mt-4">
+        <div class="mb-4">
+            <h2>Projecten</h2>
+        </div>
+        
+        <?php
+        try {
+            $stmt = $pdo->prepare("SELECT p.id AS project_id, p.title, p.description FROM projects p WHERE p.customer_id = :customer_id");
+            $stmt->execute(['customer_id' => $customer_id]);
+            $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo 'Query error.';
+            die();
+        }
+
+        foreach ($projects as $project) {
+        ?>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="title">Titel</label>
+                                <input type="text" id="title" class="form-control" value="<?php echo $project["title"]; ?>">
+                            </div>
+                            <div class="col">
+                                <label for="description">Beschrijving</label>
+                                <input type="text" id="description" class="form-control" value="<?php echo $project["description"]; ?>">
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <?php
+        }
+        ?>
+
         <form method="post" action="customerOverzicht2.php">
             <div class="row mb-3">
                 <div class="form-group mb-2">
