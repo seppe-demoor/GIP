@@ -222,10 +222,15 @@ if (is_numeric($totalHours)) {
                 // Controleer of $totalPrice numeriek is voordat je de berekening uitvoert
                 if (is_numeric($totalPrice) && is_numeric($customerDetails['tax_rate'])) {
                     // Bereken de BTW
-                    $VAT = number_format($totalPrice * ($customerDetails['tax_rate'] / 100), 2);
-                } 
+                    $VAT = $totalPrice * ($customerDetails['tax_rate'] / 100);
+                
+                    // Formatteer het BTW-bedrag met twee cijfers achter de komma
+                    $formattedVAT = number_format($VAT, 2);
+                    
+                }
+                 
                 // Laat de BTW zien
-                echo "<p class='small'>€$VAT</p>";
+                echo "<p class='small'>€$formattedVAT</p>";
         ?>
     </div>
 </div>
