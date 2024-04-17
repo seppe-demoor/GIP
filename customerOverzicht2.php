@@ -12,10 +12,10 @@ require("pdo.php");
 $res = []; // Initialize the $res array to prevent undefined index errors
 
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["id"])) {
-    $id = $_GET["id"];
+    $customer_id = $_GET["id"];
     try {
         $stmt = $pdo->prepare("SELECT c.name, c.phone_number, c.email, c.street, c.place, c.zip_code, c.house_number, c.province, c.country, c.VAT_number, p.id AS project_id, p.title, p.description, p.customer_id FROM customers c LEFT JOIN projects p ON c.id = p.customer_id WHERE c.id = :id");
-        $stmt->execute(['id' => $id]);
+        $stmt->execute(['id' => $customer_id]);
         $res = $stmt->fetch(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
         echo 'Query error.';
@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     $title = trim($_POST["title"]);
     $description = trim($_POST["description"]);
-    $customer_id = $_GET["id"]; // Assigning customer_id from GET request
+    $customer_id = $_POST["id"]; // Assigning customer_id from GET request
 
     $query_projects = "INSERT INTO projects (title, description, customer_id) VALUES (:title, :description, :customer_id)";
     $values = [
@@ -41,6 +41,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt_projects->execute($values);
     } catch (PDOException $e) {
         echo 'Query error: ' . $e->getMessage();
+        die();
+    }
+    try {
+        $stmt = $pdo->prepare("SELECT c.name, c.phone_number, c.email, c.street, c.place, c.zip_code, c.house_number, c.province, c.country, c.VAT_number, p.id AS project_id, p.title, p.description, p.customer_id FROM customers c LEFT JOIN projects p ON c.id = p.customer_id WHERE c.id = :id");
+        $stmt->execute(['id' => $customer_id]);
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo 'Query error.';
         die();
     }
 }
@@ -131,7 +139,7 @@ require("header.php");
                 </div>
             </div>
         </div>
-        <form method="post">
+        <form method="post" action="customerOverzicht2.php">
             <div class="row mb-3">
                 <div class="form-group mb-2">
                     <label for="projectTitle" class="control-label">Titel</label>
@@ -141,6 +149,7 @@ require("header.php");
                     <label for="projectDescription" class="control-label">Beschrijving</label>
                     <textarea rows="3" class="form-control form-control-sm rounded-0" name="description" id="projectDescription" required></textarea>
                 </div>
+                <input type="hidden" name="id" value="<?php echo $customer_id;?>">
                 <button class="btn btn-primary btn-sm rounded-0" type="submit" name="save_project"><i class="fa fa-save"></i> Save Project</button>
                 
             </div>
