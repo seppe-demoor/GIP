@@ -9,15 +9,30 @@ $save = false;
 if (isset($_POST["action"])) {
     // Actie om een nieuw project op te slaan
     if ($_POST["action"] == "save_project") {
-        // Extractie van $_POST-variabelen
-        extract($_POST);
+    // Extractie van $_POST-variabelen
+    extract($_POST);
 
-        // SQL-query om het nieuwe project in te voegen
-        $sql = "INSERT INTO `projects` (`title`,`description`) VALUES (?, ?)";
+    // Haal de begin- en einddatum van het project op
+    $start_date = $_POST["start_date"]; // Bijvoorbeeld: "2024-04-17"
+    $end_date = $_POST["end_date"]; // Bijvoorbeeld: "2024-04-18"
+
+    // Haal de project-ID op na het uitvoeren van de 'INSERT'-query voor 'work_time'
+    $sql = "INSERT INTO `work_time` (`start_time`, `end_time`, `active`) VALUES (?, ?, '1')";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $start_date, $end_date);
+    $save = $stmt->execute();
+
+    // Als het invoegen in 'work_time' succesvol is, haal de project-ID op
+    if ($save) {
+        $project_id = $conn->insert_id;
+
+        // Voeg de begin- en einddatum toe aan de 'work_time'-rij met de zojuist toegevoegde project-ID
+        $sql = "UPDATE `work_time` SET `project_id` = ? WHERE `id` = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ss", $title, $description);
-        $save = $stmt->execute();
-    } 
+        $stmt->bind_param("ii", $project_id, $project_id);
+        $stmt->execute();
+    }
+} 
     // Actie om een project te starten
     elseif ($_POST["action"] == "start_project") {
         // Extraheren van de project-ID en huidige tijd
@@ -69,6 +84,8 @@ $conn->close();
 
 // Bericht weergeven op basis van het resultaat van de actie
 if ($save) {
+    header("location homePage.php");
+    exit;
     echo "Gegevens zijn succesvol opgeslagen.";
 } else {
     echo "Er is een fout opgetreden tijdens het opslaan van gegevens.";

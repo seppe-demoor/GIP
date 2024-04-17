@@ -150,18 +150,6 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                             <!-- Formulier voor het selecteren van een project -->
                             <form action="homePage.php" method="post" id="project-form">
                             <div class="form-group mb-2">
-                                <label for="projectTitle" class="control-label">Titel</label>
-                                <input type="text" class="form-control form-control-sm rounded-0" name="title" id="projectTitle" required>
-                            </div>
-                            <div class="form-group mb-2">
-                                <label for="projectDescription" class="control-label">Beschrijving</label>
-                                <textarea rows="3" class="form-control form-control-sm rounded-0" name="description" id="projectDescription" required></textarea>
-                            </div>
-                            <button class="btn btn-primary btn-sm rounded-0" type="submit" name="save_project"><i class="fa fa-save"></i> Save Project</button>
-                            <hr>
-                            </form>
-                            <form action="homePage.php" method="post" id="project-form">
-                            <div class="form-group mb-2">
                             <div class="mb-2">
                                 <label for="projectSelect" class="control-label">Selecteer een Project</label>
                                 <select class="form-control form-control-sm rounded-0" name="project_id" id="projectSelect">

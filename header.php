@@ -27,7 +27,7 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #E9E2D6;
+            background-color:   white;
             margin: 0;
             padding: 0;
         }
