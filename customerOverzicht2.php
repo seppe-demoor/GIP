@@ -14,7 +14,7 @@ $res = []; // Initialize the $res array to prevent undefined index errors
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["id"])) {
     $customer_id = $_GET["id"];
     try {
-        $stmt = $pdo->prepare("SELECT c.name, c.phone_number, c.email, c.street, c.place, c.zip_code, c.house_number, c.province, c.country, c.VAT_number, p.id AS project_id, p.title, p.description, p.customer_id FROM customers c LEFT JOIN projects p ON c.id = p.customer_id WHERE c.id = :id");
+        $stmt = $pdo->prepare("SELECT c.name, c.phone_number, c.email, c.street, c.place, c.zip_code, c.house_number, c.province, c.country, c.VAT_number, p.id AS project_id, p.title, p.description, price_per_hour, p.customer_id FROM customers c LEFT JOIN projects p ON c.id = p.customer_id WHERE c.id = :id");
         $stmt->execute(['id' => $customer_id]);
         $res = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -34,12 +34,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     $title = trim($_POST["title"]);
     $description = trim($_POST["description"]);
+    $price_per_hour =trim($_POST["price_per_hour"]);
     $customer_id = $_POST["id"]; // Assigning customer_id from GET request
 
-    $query_projects = "INSERT INTO projects (title, description, customer_id) VALUES (:title, :description, :customer_id)";
+    $query_projects = "INSERT INTO projects (title, description,price_per_hour, customer_id) VALUES (:title, :description, :price_per_hour, :customer_id)";
     $values = [
         ':title' => $title, 
-        ':description' => $description, 
+        ':description' => $description,
+        ':price_per_hour'=> $price_per_hour,
         ':customer_id' => $customer_id
     ];
     
@@ -51,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die();
     }
     try {
-        $stmt = $pdo->prepare("SELECT c.name, c.phone_number, c.email, c.street, c.place, c.zip_code, c.house_number, c.province, c.country, c.VAT_number, p.id AS project_id, p.title, p.description, p.customer_id FROM customers c LEFT JOIN projects p ON c.id = p.customer_id WHERE c.id = :id");
+        $stmt = $pdo->prepare("SELECT c.name, c.phone_number, c.email, c.street, c.place, c.zip_code, c.house_number, c.province, c.country, c.VAT_number, p.id AS project_id, p.title, p.description, price_per_hour, p.customer_id FROM customers c LEFT JOIN projects p ON c.id = p.customer_id WHERE c.id = :id");
         $stmt->execute(['id' => $customer_id]);
         $res = $stmt->fetch(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
@@ -130,7 +132,7 @@ require("header.php");
         
         <?php
         try {
-            $stmt = $pdo->prepare("SELECT p.id AS project_id, p.title, p.description FROM projects p WHERE p.customer_id = :customer_id");
+            $stmt = $pdo->prepare("SELECT p.id AS project_id, p.title, p.description, p.price_per_hour FROM projects p WHERE p.customer_id = :customer_id");
             $stmt->execute(['customer_id' => $customer_id]);
             $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -153,6 +155,10 @@ require("header.php");
                                 <label for="description">Beschrijving</label>
                                 <input type="text" id="description" class="form-control" value="<?php echo $project["description"]; ?>">
                             </div>
+                            <div class="col">
+                                <label for="price_per_hour">Prijs per uur</label>
+                                <input type="text" id="price_per_hour" class="form-control" value="<?php echo $project["price_per_hour"]; ?>">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -171,6 +177,10 @@ require("header.php");
                 <div class="form-group mb-2">
                     <label for="projectDescription" class="control-label">Beschrijving</label>
                     <textarea rows="3" class="form-control form-control-sm rounded-0" name="description" id="projectDescription" required></textarea>
+                </div>
+                <div class="form-group mb-2">
+                    <label for="projectprice_per_hour" class="control-label">Prijs per uur</label>
+                    <input type="text" class="form-control form-control-sm rounded-0" name="price_per_hour" id="projectprice_per_hour" required>
                 </div>
                 <input type="hidden" name="id" value="<?php echo $customer_id;?>">
                 <button class="btn btn-primary btn-sm rounded-0" type="submit" name="save_project"><i class="fa fa-save"></i> Save Project</button>
