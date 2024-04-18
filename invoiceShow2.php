@@ -64,64 +64,15 @@ if (is_numeric($totalHours)) {
 
 
 ?>
-
-<head>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            size: A4; /* instellingen voor A4-formaat */
-        }
-
-        @page {
-            margin: 1cm; /* marges instellen voor A4-formaat */
-        }
-
-        .header {
-            background-color: #008BBA;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .content {
-            padding: 20px;
-        }
-
-        .footer {
-            background-color: #f0f0f0;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .xsmall {
-            font-size: 13px;
-        }
-
-        .small {
-            font-size: 15px;
-        }
-
-        .large {
-            font-size: 24px;
-        }
-
-        .left {
-            text-align: left;
-        }
-
-        .right {
-            text-align: right;
-        }
-    </style>
-</head>
-
-<body>	
-
+<?php
+require_once __DIR__ . '/vendor/autoload.php';
+$mpdf = new \Mpdf\Mpdf([
+    'mode' => 'utf-8',
+    'format' => 'A4'
+]);
+$mpdf->SetDisplayMode('fullpage');
+ob_start();
+?>
 
     <div class="header">
         <div class="left">
@@ -152,7 +103,7 @@ if (is_numeric($totalHours)) {
     <div class="content">
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
             <div class="left">
-                <h1 style="font-size: 80px; color: grey;">FACTUUR</h1>
+                <h1 style="font-size: 55px; color: grey;">FACTUUR</h1>
             </div>
             <div class="right">
                 <p style="font-size: 18px;"><strong>FACTUUR <?php echo date("Y") ?>-0030</strong></p>
@@ -250,7 +201,15 @@ if (is_numeric($totalHours)) {
         </div>
 
     </div>
-   
+    <?php
+        $html = ob_get_contents();
+        ob_end_clean();
+        $stylesheet = file_get_contents('style_inschrijving.css');
+        $mpdf->WriteHTML($stylesheet, 1);   // The parameter 1 tells that this is css/style only and no body/html/text
+        $mpdf->SetFooter('GO! atheneum Oudenaarde  -  {PAGENO}');
+        $mpdf->WriteHTML($html);
+        $mpdf->Output();
+    ?>
 
     <script>
         // Functie om afdrukken te activeren bij Ctrl + P

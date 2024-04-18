@@ -111,17 +111,20 @@ if (is_numeric($totalHours)) {
         }
 
         .left {
-            text-align: left;
-        }
+    display: inline-block;
+    width: 50%;
+    text-align: left;
+}
 
-        .right {
-            text-align: right;
-        }
+.right {
+    display: inline-block;
+    width: 50%;
+    text-align: right;
+}
     </style>
 </head>
 
 <body>	
-
 
     <div class="header">
         <div class="left">

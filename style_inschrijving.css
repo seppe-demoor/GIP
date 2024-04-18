@@ -1,0 +1,56 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    background-color: #008BBA;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    width: 100%; /* Neemt de volledige breedte van de pagina in beslag */
+    box-sizing: border-box; /* Voorkomt dat de padding de breedte van de header vergroot */
+}
+
+.content {
+    padding: 20px;
+}
+
+.footer {
+    background-color: #f0f0f0;
+    padding: 10px;
+    text-align: center;
+}
+
+.xsmall {
+    font-size: 10px;
+}
+
+.small {
+    font-size: 12px;
+}
+
+.large {
+    font-size: 20px;
+}
+
+.left {
+    width: 43%;
+    text-align: left;
+    float: left;
+    padding: 5px;
+}
+
+.right {
+    width: 43%;
+    text-align: right;
+    float: right;
+    padding: 5px;
+}
+
+.clearfix::after {
+    content: "";
+    display: table;
+    clear: both;
+}

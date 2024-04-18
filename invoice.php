@@ -55,6 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <!-- HTML code for project selection form -->
@@ -68,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
                 <?php endforeach; ?>
             </select>
         </div>
-        <button class="btn btn-primary btn-sm rounded-0" type="submit" name="select_project"><i class="fa fa-check"></i> Selecteer Project</button>
+        <button class="btn btn-primary btn-sm rounded-0" type="submit" ><i class="fa fa-check"></i> Selecteer Project</button>
     </div>
 </form>
 
