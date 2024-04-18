@@ -9,12 +9,14 @@ body {
     color: white;
     padding: 20px;
     text-align: center;
-    width: 100%; /* Neemt de volledige breedte van de pagina in beslag */
-    box-sizing: border-box; /* Voorkomt dat de padding de breedte van de header vergroot */
+    width: 100%; 
+    box-sizing: border-box; 
+    margin: 0;
 }
 
 .content {
     padding: 20px;
+    
 }
 
 .footer {

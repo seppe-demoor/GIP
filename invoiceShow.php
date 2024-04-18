@@ -56,10 +56,23 @@ while ($work = $work_time_query->fetch_assoc()) {
     $totalHours += calculateHours($work['start_time'], $work['end_time']);
 }
 
-// Calculate total price
-if (is_numeric($totalHours)) {
-    $totalPrice = number_format($totalHours * 65, 2);
+// Fetch price per hour from the database based on the selected project ID
+$projectPriceQuery = $conn->query("SELECT price_per_hour FROM `projects` WHERE `id` = $selectedProjectId");
+if (!$projectPriceQuery) {
+    die("Query error: " . $conn->error);
 }
+$projectPriceData = $projectPriceQuery->fetch_assoc();
+if (!$projectPriceData) {
+    die("No price data found for project with ID: $selectedProjectId");
+}
+
+$priceperhour = $projectPriceData['price_per_hour']; // Assign price per hour from the database
+
+// Calculate total price
+if (is_numeric($totalHours) && is_numeric($priceperhour)) {
+    $totalPrice = number_format($totalHours * $priceperhour, 2);
+}
+
 
 
 
@@ -172,8 +185,9 @@ if (is_numeric($totalHours)) {
 
             <div style="width: 15%;">
                 <h3 style="font-size: 16px; color: grey;">Prijs excl. btw</h3>
-                <p class="small">€65.00</p>
+                <p class="small">€<?= number_format($priceperhour, 2) ?></p>
             </div>
+
 
             <div style="width: 13%;">
                 <h3 style="font-size: 16px; color: grey;">Btw-tarief</h3>
@@ -188,8 +202,8 @@ if (is_numeric($totalHours)) {
             <div style="width: 6%;">
                 <h3 style="font-size: 16px; color: grey;">Totaal</h3>
                 <?php
-                $totalPrice = number_format($totalHours * 65, 2);
-                echo "<p class='small'>€$totalPrice</p>";
+                    $totalPrice = number_format($totalHours * $priceperhour, 2);
+                    echo "<p class='small'>€$totalPrice</p>";
                 ?>
             </div>
         </div>
