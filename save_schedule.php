@@ -84,9 +84,8 @@ $conn->close();
 
 // Bericht weergeven op basis van het resultaat van de actie
 if ($save) {
-    header("location homePage.php");
+    header("Location: homePage.php");
     exit;
-    echo "Gegevens zijn succesvol opgeslagen.";
 } else {
     echo "Er is een fout opgetreden tijdens het opslaan van gegevens.";
 }
