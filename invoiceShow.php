@@ -262,23 +262,18 @@ if (is_numeric($totalHours) && is_numeric($priceperhour)) {
                 ?>
             </div>
         </div>
+
+        <form method="post" action="generate_invoice.php">
+            <input type="hidden" name="project_id" value="<?= $selectedProjectId ?>">
+            <input type="hidden" name="total_price" value="<?= $totalPrice ?>">
+            <input type="hidden" name="VAT" value="<?= $VAT ?>">
+            <input type="hidden" name="total_payment" value="<?= $totalPayment ?>">
+            <input type="hidden" name="price_per_hour" value="<?= $priceperhour ?>">
+            <input type="hidden" name="total_hours" value="<?= $totalHours ?>">
+            <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                <button type="submit" name="action" value="create">Maak Factuur</button>
+                <button type="submit" name="action" value="cancel">Annuleren</button>
+            </div>
+        </form>
     </div>
-
-    <script>
-        // Functie om afdrukken te activeren bij Ctrl + P
-        window.addEventListener("keydown", function(event) {
-            if (event.ctrlKey && event.key === "p") {
-                event.preventDefault(); // Voorkom standaard Ctrl + P
-                window.print(); // Activeer afdrukken
-            }
-        });
-    </script>
-
-    <?php
-    // Update invoiced status from 0 to 1 after generating the invoice
-    $updateQuery = $conn->query("UPDATE `work_time` SET `invoiced` = 1 WHERE `project_id` = $selectedProjectId AND `invoiced` = 0");
-    if (!$updateQuery) {
-        die("Update error: " . $conn->error);
-    }
-    ?>
 </body>
