@@ -6,25 +6,31 @@ require("pdo.php");
 function calculateHours($start, $end) {
     $start_time = strtotime($start);
     $end_time = strtotime($end);
-    return round(($end_time - $start_time) / 3600, 2); // Omzetten naar uren met 2 decimalen
+    $total_minutes = round(($end_time - $start_time) / 60); // Omzetten naar minuten en afronden
+    return round($total_minutes / 60, 2); // Omzetten naar uren met 2 decimalen
 }
 
 // Functie om de klantgegevens op te halen
 function getCustomerDetails($customerId) {
     global $conn;
-    $customer_query = $conn->query("SELECT customers.*, countries.tax_rate, countries.name as country_name
-                                FROM customers 
-                                JOIN countries ON customers.country = countries.id 
-                                WHERE customers.id = '$customerId'");
+    try {
+        $customer_query = $conn->query("SELECT customers.*, countries.tax_rate, countries.name as country_name
+                                        FROM customers 
+                                        JOIN countries ON customers.country = countries.id 
+                                        WHERE customers.id = '$customerId'");
 
-    if (!$customer_query) {
-        die("Query error: " . $conn->error);
+        if (!$customer_query) {
+            throw new Exception("Query error: " . $conn->error);
+        }
+
+        $customer = $customer_query->fetch_assoc();
+        if (!$customer) {
+            throw new Exception("No customer found with ID: $customerId");
+        }
+        return $customer;
+    } catch (Exception $e) {
+        die($e->getMessage());
     }
-    $customer = $customer_query->fetch_assoc();
-    if (!$customer) {
-        die("No customer found with ID: $customerId");
-    }
-    return $customer;
 }
 
 // Laden van geselecteerde projectinformatie uit de querystring
@@ -33,54 +39,60 @@ if (!$selectedProjectId) {
     die("Geen project geselecteerd.");
 }
 
-// Check if there are any work times that have not been invoiced
-$invoicedCheckQuery = $conn->query("SELECT COUNT(*) as count FROM `work_time` WHERE `project_id` = $selectedProjectId AND `invoiced` = 0");
-if (!$invoicedCheckQuery) {
-    die("Query error: " . $conn->error);
-}
-$invoicedCheck = $invoicedCheckQuery->fetch_assoc();
-if ($invoicedCheck['count'] == 0) {
-    die("Geen uren beschikbaar om te factureren.");
-}
+try {
+    // Check if there are any work times that have not been invoiced
+    $invoicedCheckQuery = $conn->query("SELECT COUNT(*) as count FROM `work_time` WHERE `project_id` = $selectedProjectId AND `invoiced` = 0");
+    if (!$invoicedCheckQuery) {
+        throw new Exception("Query error: " . $conn->error);
+    }
+    $invoicedCheck = $invoicedCheckQuery->fetch_assoc();
+    if ($invoicedCheck['count'] == 0) {
+        throw new Exception("Geen uren beschikbaar om te factureren.");
+    }
 
-// Haal projectgegevens op
-$selectedProjectQuery = $conn->query("SELECT * FROM `projects` WHERE `id` = $selectedProjectId");
-if (!$selectedProjectQuery) {
-    die("Query error: " . $conn->error);
-}
-$selectedProject = $selectedProjectQuery->fetch_assoc();
-if (!$selectedProject) {
-    die("Geen project gevonden met ID: $selectedProjectId");
-}
+    // Haal projectgegevens op
+    $selectedProjectQuery = $conn->query("SELECT * FROM `projects` WHERE `id` = $selectedProjectId");
+    if (!$selectedProjectQuery) {
+        throw new Exception("Query error: " . $conn->error);
+    }
+    $selectedProject = $selectedProjectQuery->fetch_assoc();
+    if (!$selectedProject) {
+        throw new Exception("Geen project gevonden met ID: $selectedProjectId");
+    }
 
-// Haal klantgegevens op
-$customerDetails = getCustomerDetails($selectedProject['customer_id']);
+    // Haal klantgegevens op
+    $customerDetails = getCustomerDetails($selectedProject['customer_id']);
 
-$totalPrice = 0;
-$VAT = 0;
+    // Bereken totale gewerkte uren
+    $totalHours = 0;
+    $work_time_query = $conn->query("SELECT * FROM `work_time` WHERE `project_id` = $selectedProjectId AND `invoiced` = 0");
+    while ($work = $work_time_query->fetch_assoc()) {
+        $totalHours += calculateHours($work['start_time'], $work['end_time']);
+    }
 
-// Bereken totale gewerkte uren
-$totalHours = 0;
-$work_time_query = $conn->query("SELECT * FROM `work_time` WHERE `project_id` = $selectedProjectId AND `invoiced` = 0");
-while ($work = $work_time_query->fetch_assoc()) {
-    $totalHours += calculateHours($work['start_time'], $work['end_time']);
-}
+    // Fetch price per hour from the database based on the selected project ID
+    $projectPriceQuery = $conn->query("SELECT price_per_hour FROM `projects` WHERE `id` = $selectedProjectId");
+    if (!$projectPriceQuery) {
+        throw new Exception("Query error: " . $conn->error);
+    }
+    $projectPriceData = $projectPriceQuery->fetch_assoc();
+    if (!$projectPriceData) {
+        throw new Exception("No price data found for project with ID: $selectedProjectId");
+    }
 
-// Fetch price per hour from the database based on the selected project ID
-$projectPriceQuery = $conn->query("SELECT price_per_hour FROM `projects` WHERE `id` = $selectedProjectId");
-if (!$projectPriceQuery) {
-    die("Query error: " . $conn->error);
-}
-$projectPriceData = $projectPriceQuery->fetch_assoc();
-if (!$projectPriceData) {
-    die("No price data found for project with ID: $selectedProjectId");
-}
+    $priceperhour = $projectPriceData['price_per_hour'];
 
-$priceperhour = $projectPriceData['price_per_hour']; // Assign price per hour from the database
-
-// Calculate total price
-if (is_numeric($totalHours) && is_numeric($priceperhour)) {
-    $totalPrice = number_format($totalHours * $priceperhour, 2);
+    // Calculate total price
+    if (is_numeric($totalHours) && is_numeric($priceperhour)) {
+        $totalPrice = number_format($totalHours * $priceperhour, 2);
+    }
+} catch (Exception $e) {
+    // Toon de foutmelding in een pop-up
+    echo "<script>
+        alert('{$e->getMessage()}');
+        window.location.href = 'Invoice.php';
+    </script>";
+    exit();
 }
 ?>
 
@@ -152,7 +164,6 @@ if (is_numeric($totalHours) && is_numeric($priceperhour)) {
         <div class="right">
             <p class="xsmall">Aan</p>
             <?php
-            // Laad klantgegevens als geselecteerd project bestaat
             if ($selectedProject) {
                 echo "<p class='large'><strong>" . $customerDetails['name'] . "</strong></p>";
                 echo "<p class='small'>" . $customerDetails['street'] . "</p>";
@@ -205,8 +216,8 @@ if (is_numeric($totalHours) && is_numeric($priceperhour)) {
             <div style="width: 6%;">
                 <h3 style="font-size: 16px; color: grey;">Totaal</h3>
                 <?php
-                    $totalPrice = number_format($totalHours * $priceperhour, 2);
-                    echo "<p class='small'>€$totalPrice</p>";
+                $totalPrice = number_format($totalHours * $priceperhour, 2);
+                echo "<p class='small'>€$totalPrice</p>";
                 ?>
             </div>
         </div>
