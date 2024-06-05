@@ -28,7 +28,7 @@ function getCustomerDetails($customerId) {
 }
 
 // Laden van geselecteerde projectinformatie uit de querystring
-$selectedProjectId = $_GET["project_id"] ?? null;
+$selectedProjectId = $_POST["project_id"] ?? null;
 if (!$selectedProjectId) {
     die("Geen project geselecteerd.");
 }

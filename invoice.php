@@ -59,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
 <body>
     <div class="container">
         <!-- HTML code for project selection form -->
-        <form action="invoiceShow.php" method="get" id="project-form"> <!-- Changed method to get -->
+        <form action="invoiceShow.php" method="post" id="project-form"> <!-- Changed method to get -->
     <div class="form-group mb-2">
         <div class="mb-2">
             <label for="projectSelect" class="control-label">Selecteer een Project</label>
