@@ -1,6 +1,7 @@
 {
     "require": {
         "ramsey/uuid": "^4.2",
-        "mpdf/mpdf": "^8.2"
+        "mpdf/mpdf": "^8.2",
+        "phpmailer/phpmailer": "^6.9"
     }
 }

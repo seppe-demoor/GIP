@@ -115,9 +115,9 @@
   <button class="header-btn">Overzicht</button>
   <div class="dropdown-content">
             <a class="dropdown-btn" href="userOverzicht.php">Gebruikers</a>
-            <a class="dropdown-btn" href="countryOverzicht.php">Landen</a>
-            <a class="dropdown-btn" href="customerOverzicht.php">klanten</a>
             <a class="dropdown-btn" href="facturenOverzicht.php">Facturen</a>
+            <a class="dropdown-btn" href="customerOverzicht.php">klanten</a>
+            <a class="dropdown-btn" href="countryOverzicht.php">Landen</a>
   </div>
 </div>
     <?php endif; ?>

@@ -13,15 +13,19 @@ $projects_query = $pdo->query("SELECT * FROM `projects`");
 // Check if a project is selected
 $selectedProjectId = null;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["project_id"])) {
-    $selectedProjectId = $_POST["project_id"];
-    $query = "SELECT p.title, i.total_amount, i.invoice_date 
-              FROM Invoices i, projects p 
-              WHERE p.customer_id = i.customer_id 
-              AND p.id = :project_id";
+    $selectedProjectId = $_POST["project_id"] == 'all' ? null : $_POST["project_id"];
+    $query = "SELECT p.title, i.total_amount, i.invoice_date, i.id as invoice_id, pdf.pdf_data 
+              FROM Invoices i 
+              JOIN projects p ON p.customer_id = i.customer_id 
+              LEFT JOIN pdf_invoices pdf ON i.id = pdf.invoice_id";
+    if ($selectedProjectId) {
+        $query .= " WHERE p.id = :project_id";
+    }
 } else {
-    $query = "SELECT p.title, i.total_amount, i.invoice_date 
-              FROM Invoices i, projects p 
-              WHERE p.customer_id = i.customer_id";
+    $query = "SELECT p.title, i.total_amount, i.invoice_date, i.id as invoice_id, pdf.pdf_data 
+              FROM Invoices i 
+              JOIN projects p ON p.customer_id = i.customer_id 
+              LEFT JOIN pdf_invoices pdf ON i.id = pdf.invoice_id";
 }
 
 try {
@@ -31,7 +35,7 @@ try {
     }
     $res->execute();
 } catch (PDOException $e) {
-    echo 'Query error.';
+    echo 'Query error: ' . $e->getMessage();
     die();
 }
 
@@ -62,6 +66,7 @@ require("header.php");
             <div class="form-group">
                 <label for="projectSelect">Selecteer een Project</label>
                 <select class="form-control" name="project_id" id="projectSelect">
+                    <option value="all" <?= $selectedProjectId === null ? 'selected' : '' ?>>Alle Projecten</option>
                     <?php foreach ($projects_query as $project) : ?>
                         <option value="<?= $project['id'] ?>" <?= $selectedProjectId == $project['id'] ? 'selected' : '' ?>>
                             <?= $project['title'] ?>
@@ -79,17 +84,25 @@ require("header.php");
                         <th>Naam</th>
                         <th>Prijs</th>
                         <th>Aangemaakt op Datum</th>
+                        <th>PDF</th>
                     </tr>
                     <?php if($res->rowCount() != 0) : ?>
                         <?php while($row = $res->fetch(PDO::FETCH_ASSOC)) : ?>
                             <tr>
-                                <td><?php echo $row["title"]; ?></td>
-                                <td>€<?php echo  $row["total_amount"]; ?></td>
-                                <td><?php echo $row["invoice_date"]; ?></td>
+                                <td><?php echo htmlspecialchars($row["title"], ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td>€<?php echo  htmlspecialchars($row["total_amount"], ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td><?php echo htmlspecialchars($row["invoice_date"], ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td>
+                                    <?php if ($row["pdf_data"]) : ?>
+                                        <a href="view_pdf.php?invoice_id=<?= $row['invoice_id'] ?>" target="_blank">Bekijk PDF</a>
+                                    <?php else : ?>
+                                        Geen PDF
+                                    <?php endif; ?>
+                                </td>
                             </tr>
                         <?php endwhile; ?>
                     <?php else : ?>
-                        <tr><td colspan='3'>Geen gegevens gevonden</td></tr>
+                        <tr><td colspan='4'>Geen gegevens gevonden</td></tr>
                     <?php endif; ?>
                 </table>
             </div>
