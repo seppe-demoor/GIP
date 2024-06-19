@@ -13,24 +13,6 @@ if (!isset($_SESSION["email"])) {
 
 require("header.php"); // Laad de header voor de pagina
 
-// Logica voor het beëindigen van een project
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["end_project"])) {
-    if (isset($_POST["title"]) && isset($_POST["description"])) {
-        $title = $_POST["title"];
-        $description = $_POST["description"];
-        $project_id = $_POST["project_id"];
-
-        try {
-            // Voorbereiden van de query om de eindtijd van het project bij te werken
-            $stmt = $conn->prepare("UPDATE `projects` SET `end_time` = NOW() WHERE `title` = ?");
-            $stmt->bind_param("s", $title); // Bind de titel parameter
-            $stmt->execute(); // Voer de query uit
-        } catch (Exception $e) {
-            die($e->getMessage()); // Stop het script en toon de foutmelding als er een uitzondering optreedt
-        }
-    }
-}
-
 // Ophalen van schema's en projecten uit de database
 try {
     // Query om schema's op te halen die zijn gekoppeld aan projecten
