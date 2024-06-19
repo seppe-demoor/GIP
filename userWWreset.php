@@ -1,47 +1,59 @@
 <?php
-require("start.php");
-require("pdo.php");
+require("start.php"); // Start de sessie en laad initiële instellingen
+require("pdo.php"); // Maak verbinding met de database via PDO
 
-$showAlert = false;
+$showAlert = false; // Variabele om te bepalen of een waarschuwing moet worden getoond
 
+// Controleer of het verzoek een POST-verzoek is
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Haal de wachtwoorden en de geheime code uit het POST-verzoek
     $password1 = $_POST["password1"];
     $password2 = $_POST["password2"];
     $secret = trim($_POST["secret"]);
-    $id = $_SESSION["id"];
+    $id = $_SESSION["id"]; // Haal de gebruiker-ID uit de sessie
 
     try {
+        // Query om de geheime code van de gebruiker op te halen uit de database
         $query = "SELECT `secret` FROM `users` WHERE `id` = :ID";
         $res = $pdo->prepare($query);
         $res->execute([':ID' => $id]);
-        $row = $res->fetch(PDO::FETCH_ASSOC);
+        $row = $res->fetch(PDO::FETCH_ASSOC); // Haal de resultaten op als een associatieve array
 
+        // Controleer of de ingevoerde geheime code overeenkomt met de code in de database
         if ($row["secret"] == $secret) {
+            // Controleer of de twee ingevoerde wachtwoorden overeenkomen
             if ($password1 === $password2) {
+                // Hash het nieuwe wachtwoord voor veiligheid
                 $password = password_hash($password1, PASSWORD_DEFAULT);
+                // Query om het wachtwoord te updaten in de database
                 $query = "UPDATE `users` SET `userPassword` = :pw, `passwordReset` = 0 WHERE `id` = :ID";
                 $res = $pdo->prepare($query);
                 $res->execute([':pw' => $password, ':ID' => $id]);
+                // Stuur de gebruiker door naar een beveiligde pagina
                 header("Location: beveiligd.php");
-                exit;
+                exit; // Stop de verdere uitvoering van het script
             } else {
+                // Toon een waarschuwing als de wachtwoorden niet overeenkomen
                 $showAlert = true;
                 $alertText = "<strong>FOUT!</strong> De 2 getypte wachtwoorden zijn niet gelijk, probeer opnieuw.";
             }
         } else {
+            // Toon een waarschuwing als de geheime code onjuist is
             $showAlert = true;
             $alertText = "<strong>FOUT!</strong> Uw code is niet correct ingegeven.";
         }
     } catch (PDOException $e) {
+        // Toon een foutbericht als de query mislukt
         echo "Query error: " . $e->getMessage();
-        die();
+        die(); // Stop de verdere uitvoering van het script
     }
 }
 
+// Controleer of het verzoek een GET-verzoek is en of de 'secret' parameter is ingesteld
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['secret'])) {
-    $secret = $_GET['secret'];
+    $secret = $_GET['secret']; // Haal de geheime code uit de URL-parameters
 }
-require("header.php");
+require("header.php"); // Laad de header van de pagina
 ?>
 
 <!DOCTYPE html>
@@ -112,11 +124,13 @@ require("header.php");
                 <h3>Je moet je wachtwoord opnieuw instellen</h3>
             </div>
             <div class="col-sm-6">
+                <!-- Toon een waarschuwing als de variabele $showAlert waar is -->
                 <?php if ($showAlert) : ?>
                     <div class="alert">
-                        <?php echo $alertText; ?>
+                        <?php echo $alertText; // Toon de waarschuwingstekst ?>
                     </div>
                 <?php endif; ?>
+                <!-- Formulier voor het opnieuw instellen van het wachtwoord -->
                 <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
                     <div class="form-group">
                         <label for="Password1" class="form-label">Nieuw wachtwoord</label>
@@ -135,6 +149,6 @@ require("header.php");
             </div>
         </div>
     </div>
-<?php require("footer.php"); ?>
+<?php require("footer.php"); // Laad de footer van de pagina ?>
 </body>
 </html>

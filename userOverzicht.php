@@ -1,24 +1,31 @@
 <?php
+// Start de sessie
 require("start.php");
 
+// Controleer of de gebruiker een admin is, zo niet, stuur door naar de loginpagina
 if (!isset($_SESSION["admin"]) || $_SESSION["admin"] == 0) {
     header("Location: loginPage.php");
     exit;
 }
 
+// Verbind met de database
 require("pdo.php");
 
+// Controleer of de parameter 'deleted' is ingesteld om te bepalen of verwijderde gebruikers moeten worden weergegeven
 $deleted = isset($_GET['deleted']);
 $query = $deleted ? "SELECT `id`,`naam`,`voornaam`,`email`,`phone_number`,`admin` FROM `users` WHERE `active` = 0" : "SELECT `id`,`naam`,`voornaam`,`email`,`phone_number`,`admin` FROM `users` WHERE `active` = 1";
 
 try {
+    // Bereid en voer de query uit
     $res = $pdo->prepare($query);
     $res->execute();
 } catch (PDOException $e) {
+    // Toon een foutmelding bij een queryfout
     echo 'Query error: ' . $e->getMessage();
     die();
 }
 
+// Vereist het headerbestand
 require("header.php");
 ?>
 <div class="container mt-5">
@@ -26,10 +33,13 @@ require("header.php");
         <div class="col-sm-12">
             <span class="float-end">
                 <?php if ($deleted): ?>
+                    <!-- Link om actieve gebruikers weer te geven -->
                     <a href="userOverzicht.php"><i class="bi bi-person-heart fs-2 text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Actieve gebruikers"></i></a>
                 <?php else: ?>
+                    <!-- Link om een nieuwe gebruiker toe te voegen -->
                     <a href="userNew.php"><i class="bi bi-person-plus-fill fs-2 text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Nieuwe gebruiker"></i></a>
                     &nbsp;
+                    <!-- Link om verwijderde gebruikers weer te geven -->
                     <a href="userOverzicht.php?deleted"><i class="bi bi-person-fill-slash fs-2 text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Verwijderde gebruikers"></i></a>
                 <?php endif; ?>
             </span>
@@ -39,11 +49,12 @@ require("header.php");
                     <th>Naam</th>
                     <th>Voornaam</th>
                     <th>Email</th>
-                    <th>telefoonnummer</th>
+                    <th>Telefoonnummer</th>
                     <th>Admin</th>
                     <th>Acties</th>
                 </tr>
                 <?php if ($res->rowCount() != 0): ?>
+                    <!-- Loop door de resultaten en toon de gegevens in de tabel -->
                     <?php while ($row = $res->fetch(PDO::FETCH_ASSOC)): ?>
                         <tr>
                             <td><?php echo $row["naam"]; ?></td>
@@ -53,23 +64,28 @@ require("header.php");
                             <td><?php echo $row["admin"] ? '<i class="bi bi-check-square-fill text-success"></i>' : '<i class="bi bi-square"></i>'; ?></td>
                             <td>
                                 <?php if ($deleted): ?>
+                                    <!-- Pictogram om een gebruiker opnieuw te activeren -->
                                     <i id="Activate" class="bi bi-person-up text-success fs-2" onclick='showModalReactivate("<?php echo $row["email"];?>","<?php echo $row["id"];?>")' data-bs-toggle="modal" data-bs-target="#ReactivateUser" data-bs-toggle="tooltip" data-bs-placement="top" title="Gebruiker terug activeren"></i>
                                 <?php else: ?>
+                                    <!-- Link om een gebruiker te bewerken -->
                                     <a href="userUpdate.php?id=<?php echo $row["id"]; ?>"><i class="bi bi-pencil text-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit gebruiker"></i></a>
+                                    <!-- Pictogram om een gebruiker te verwijderen -->
                                     <i id="Delete" class="bi bi-trash text-danger" onclick='showModalDelete("<?php echo $row["email"];?>","<?php echo $row["id"];?>")' data-bs-toggle="modal" data-bs-target="#DeleteUser" data-bs-toggle="tooltip" data-bs-placement="top" title="Verwijder gebruiker"></i>
+                                    <!-- Link om het wachtwoord van een gebruiker te resetten -->
                                     <a href="resetUser.php?id=<?php echo $row["id"]; ?>"><i class="bi bi-unlock text-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Reset wachtwoord"></i></a>
                                 <?php endif; ?>
                             </td>
                         </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
+                    <!-- Bericht als er geen gegevens zijn gevonden -->
                     <tr><td colspan='6'>Geen gegevens gevonden</td></tr>
                 <?php endif; ?>
         </div>
     </div>
 </div>
 
-<!-- Modal delete user -->
+<!-- Modal voor het verwijderen van een gebruiker -->
 <div class="modal fade" id="DeleteUser">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -91,7 +107,7 @@ require("header.php");
     </div>
 </div>
 
-<!-- Modal reactivate user -->
+<!-- Modal voor het heractiveren van een gebruiker -->
 <div class="modal fade" id="ReactivateUser">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -114,42 +130,45 @@ require("header.php");
 </div>
 
 <script>
-    // Deleten van een user
+    // Functie om de verwijder-modal weer te geven
     function showModalDelete(email, uuid) {
         document.getElementById('userDEL').innerHTML = email;
         document.getElementById('KnopVerwijder').value = uuid;
     }
 
+    // Functie om een gebruiker te deactiveren via AJAX
     function deactivateUser(id) {
-        let ajx = new XMLHttpRequest();
+        let ajx = new XMLHttpRequest(); // Maak een nieuw XMLHttpRequest object aan
         ajx.onreadystatechange = function () {
-            if (ajx.readyState == 4 && ajx.status == 200) {
-                location.reload();
+            if (ajx.readyState == 4 && ajx.status == 200) { // Controleer of de request voltooid is en succesvol was
+                location.reload(); // Herlaad de pagina om de wijzigingen weer te geven
             }
         };
-        ajx.open("POST", "userDelete.php", true);
-        ajx.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        ajx.send("id=" + id);
+        ajx.open("POST", "userDelete.php", true); // Open een POST request naar 'userDelete.php'
+        ajx.setRequestHeader("Content-type", "application/x-www-form-urlencoded"); // Stel de content-type header in voor form data
+        ajx.send("id=" + id); // Verstuur de request met de gebruikers-ID
     }
 
-    // Heractiveren van een user
+    // Functie om de heractiveer-modal weer te geven
     function showModalReactivate(email, uuid) {
         document.getElementById('userACT').innerHTML = email;
         document.getElementById('KnopActivate').value = uuid;
     }
 
+    // Functie om een gebruiker te heractiveren via AJAX
     function activateUser(id) {
-        let ajx = new XMLHttpRequest();
+        let ajx = new XMLHttpRequest(); // Maak een nieuw XMLHttpRequest object aan
         ajx.onreadystatechange = function () {
-            if (ajx.readyState == 4 && ajx.status == 200) {
-                location.reload();
+            if (ajx.readyState == 4 && ajx.status == 200) { // Controleer of de request voltooid is en succesvol was
+                location.reload(); // Herlaad de pagina om de wijzigingen weer te geven
             }
         };
-        ajx.open("POST", "userActivate.php", true);
-        ajx.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        ajx.send("id=" + id);
+        ajx.open("POST", "userActivate.php", true); // Open een POST request naar 'userActivate.php'
+        ajx.setRequestHeader("Content-type", "application/x-www-form-urlencoded"); // Stel de content-type header in voor form data
+        ajx.send("id=" + id); // Verstuur de request met de gebruikers-ID
     }
 </script>
 <?php
+// Vereist het footerbestand
 require("footer.php");
 ?>

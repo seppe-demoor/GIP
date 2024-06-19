@@ -1,88 +1,107 @@
 <?php
+// Inclusie van vereiste bestanden voor databaseverbinding en configuratie
 require("start.php");
 require("pdo.php");
 
+// Functie: bereken aantal uren tussen twee tijdstippen
 function calculateHours($start, $end) {
-    $start_time = strtotime($start);
-    $end_time = strtotime($end);
-    $total_minutes = round(($end_time - $start_time) / 60);
-    return round($total_minutes / 60, 2);
+    $start_time = strtotime($start); // Zet starttijd om naar timestamp
+    $end_time = strtotime($end); // Zet eindtijd om naar timestamp
+    $total_minutes = round(($end_time - $start_time) / 60); // Bereken het totaal aantal minuten
+    return round($total_minutes / 60, 2); // Converteer naar uren en rond af op twee decimalen
 }
 
+// Functie: haal klantgegevens op basis van klant-ID
 function getCustomerDetails($customerId) {
-    global $conn;
+    global $conn; // Gebruik de globale databaseverbinding
     try {
+        // Query om klantgegevens op te halen inclusief belastingtarief van het land
         $customer_query = $conn->query("SELECT customers.*, countries.tax_rate, countries.name as country_name
                                         FROM customers 
                                         JOIN countries ON customers.country = countries.id 
                                         WHERE customers.id = '$customerId'");
+        // Gooi een fout als de query mislukt
         if (!$customer_query) {
             throw new Exception("Query error: " . $conn->error);
         }
 
+        // Haal klantgegevens op
         $customer = $customer_query->fetch_assoc();
+        // Gooi een fout als er geen klant gevonden wordt met het opgegeven ID
         if (!$customer) {
             throw new Exception("No customer found with ID: $customerId");
         }
-        return $customer;
+        return $customer; // Geef de klantgegevens terug
     } catch (Exception $e) {
-        die($e->getMessage());
+        die($e->getMessage()); // Stop het script en geef de foutmelding weer
     }
 }
 
+// Haal het geselecteerde project-ID op uit POST-gegevens of geef een foutmelding als er geen is
 $selectedProjectId = $_POST["project_id"] ?? null;
 if (!$selectedProjectId) {
     die("Geen project geselecteerd.");
 }
 
 try {
+    // Controleer of er niet-gefactureerde uren beschikbaar zijn voor het geselecteerde project
     $invoicedCheckQuery = $conn->query("SELECT COUNT(*) as count FROM `work_time` WHERE `project_id` = $selectedProjectId AND `invoiced` = 0");
     if (!$invoicedCheckQuery) {
         throw new Exception("Query error: " . $conn->error);
     }
     $invoicedCheck = $invoicedCheckQuery->fetch_assoc();
+    // Gooi een fout als er geen niet-gefactureerde uren zijn voor het project
     if ($invoicedCheck['count'] == 0) {
         throw new Exception("Geen uren beschikbaar om te factureren.");
     }
 
+    // Haal projectdetails op voor het geselecteerde project
     $selectedProjectQuery = $conn->query("SELECT * FROM `projects` WHERE `id` = $selectedProjectId");
     if (!$selectedProjectQuery) {
         throw new Exception("Query error: " . $conn->error);
     }
     $selectedProject = $selectedProjectQuery->fetch_assoc();
+    // Gooi een fout als er geen project gevonden wordt met het opgegeven project-ID
     if (!$selectedProject) {
         throw new Exception("Geen project gevonden met ID: $selectedProjectId");
     }
 
+    // Haal klantgegevens op voor het geselecteerde project
     $customerDetails = getCustomerDetails($selectedProject['customer_id']);
 
+    // Bereken totaal aantal uren voor niet-gefactureerde werktijd voor het project
     $totalHours = 0;
     $work_time_query = $conn->query("SELECT * FROM `work_time` WHERE `project_id` = $selectedProjectId AND `invoiced` = 0");
     while ($work = $work_time_query->fetch_assoc()) {
         $totalHours += calculateHours($work['start_time'], $work['end_time']);
     }
 
+    // Haal prijs per uur op voor het geselecteerde project
     $projectPriceQuery = $conn->query("SELECT price_per_hour FROM `projects` WHERE `id` = $selectedProjectId");
     if (!$projectPriceQuery) {
         throw new Exception("Query error: " . $conn->error);
     }
     $projectPriceData = $projectPriceQuery->fetch_assoc();
+    // Gooi een fout als er geen prijsgegevens gevonden worden voor het project met het opgegeven ID
     if (!$projectPriceData) {
         throw new Exception("No price data found for project with ID: $selectedProjectId");
     }
 
+    // Haal prijs per uur op en bereken totaalprijs voor de factuur
     $priceperhour = $projectPriceData['price_per_hour'];
     $totalPrice = number_format($totalHours * $priceperhour, 2);
 } catch (Exception $e) {
+    // Vang uitzonderingen op en geef een JavaScript-waarschuwing weer met de foutmelding, stuur de gebruiker door naar een foutpagina
     echo "<script>
         alert('{$e->getMessage()}');
         window.location.href = 'Invoice.php';
     </script>";
-    exit();
+    exit(); // Stop verdere uitvoering van het script na het weergeven van de foutmelding
 }
 ?>
 
 <head>
+    <!-- Stijlinstellingen voor de factuurpagina -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -129,6 +148,7 @@ try {
 </head>
 
 <body>
+    <!-- Factuurinhoud dynamisch gegenereerd op basis van opgehaalde gegevens -->
     <div class="header">
         <div class="left">
             <p class="xsmall">Van</p>
@@ -140,6 +160,7 @@ try {
         </div>
         <div class="right">
             <p class="xsmall">Aan</p>
+            <!-- Dynamische weergave van klantgegevens -->
             <?php if ($selectedProject): ?>
                 <p class="large"><strong><?php echo $customerDetails['name']; ?></strong></p>
                 <p class="small"><?php echo $customerDetails['street']; ?></p>
@@ -147,6 +168,7 @@ try {
                 <p class="small"><?php echo $customerDetails['country_name']; ?></p>
                 <p class="small">Btw: <?php echo $customerDetails['VAT_number']; ?></p>
             <?php else: ?>
+                <!-- Geef een melding weer als er geen project is geselecteerd -->
                 <p class="small">Selecteer eerst een project om de klantgegevens weer te geven.</p>
             <?php endif; ?>
         </div>
@@ -204,13 +226,14 @@ try {
                 <h3 style="font-size: 16px; color: grey;">Btw (<?php echo $customerDetails['tax_rate']; ?>%)</h3>
             </div>
             <div style="width: 15%; text-align: right;">
+                <!-- Bereken BTW-bedrag en geef het weer -->
                 <?php
-                $totalPrice = preg_replace("/[^0-9.]/", "", $totalPrice);
-                $totalPrice = floatval($totalPrice);
+                $totalPrice = preg_replace("/[^0-9.]/", "", $totalPrice); // Verwijder niet-numerieke tekens uit totaalprijs
+                $totalPrice = floatval($totalPrice); // Converteer totaalprijs naar een float
                 if (is_numeric($totalPrice) && is_numeric($customerDetails['tax_rate'])) {
-                    $VAT = number_format($totalPrice * ($customerDetails['tax_rate'] / 100), 2);
+                    $VAT = number_format($totalPrice * ($customerDetails['tax_rate'] / 100), 2); // Bereken BTW
                 }
-                echo "<p class='small'>€$VAT</p>";
+                echo "<p class='small'>€$VAT</p>"; // Geef BTW-bedrag weer
                 ?>
             </div>
         </div>
@@ -220,13 +243,15 @@ try {
                 <h3 style="font-size: 16px; color: grey;">Te betalen</h3>
             </div>
             <div style="width: 15%; text-align: right;">
+                <!-- Bereken totaal te betalen bedrag en geef het weer -->
                 <?php
-                $totalPayment = number_format($totalPrice + $VAT, 2);
-                echo "<p class='small'><strong>€$totalPayment</strong></p>";
+                $totalPayment = number_format($totalPrice + $VAT, 2); // Bereken totaal te betalen bedrag
+                echo "<p class='small'><strong>€$totalPayment</strong></p>"; // Geef totaal te betalen bedrag weer
                 ?>
             </div>
         </div>
 
+        <!-- Formulier voor factuuracties -->
         <form method="post" action="generate_invoice.php">
             <input type="hidden" name="project_id" value="<?php echo $selectedProjectId; ?>">
             <input type="hidden" name="total_price" value="<?php echo $totalPrice; ?>">

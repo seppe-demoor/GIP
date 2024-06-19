@@ -1,19 +1,20 @@
 <?php
 require("start.php");
 
+// Als de gebruiker al is ingelogd (sessie bestaat al), doorsturen naar homePage.php
 if (isset($_SESSION['email'])) {
     header("Location: homePage.php");
     exit;
 }
 
-$showAlert = false;
+$showAlert = false; // Variabele om te controleren of een waarschuwing moet worden weergegeven
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
-        require("pdo.php");
+        require("pdo.php"); // Databaseverbinding met PDO
 
-        $email = trim($_POST["email"]);
-        $password = trim($_POST["password"]);
+        $email = trim($_POST["email"]); // Ophalen en opschonen van ingediende e-mail
+        $password = trim($_POST["password"]); // Ophalen en opschonen van ingediend wachtwoord
         
         $query = "SELECT `id`, `email`, `userPassword`, `passwordReset`, `admin`, `active` FROM `users` WHERE `email` = :email";
         $values = [':email' => $email];
@@ -23,32 +24,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $row = $res->fetch(PDO::FETCH_ASSOC);
 
+        // Controleer of er een rij is geretourneerd en of de gebruiker actief is
         if ($row && $row['active']) {
+            // Verifieer het ingediende wachtwoord met het gehashte wachtwoord in de database
             if (password_verify($password, $row['userPassword'])) {
+                // Sessievariabelen instellen na succesvolle verificatie
                 $_SESSION["email"] = $email;
                 $_SESSION['CREATED'] = time();
                 $_SESSION['id'] = $row['id'];
                 $_SESSION['admin'] = $row['admin'];
+
+                // Doorsturen naar de juiste pagina op basis van passwordReset-status
                 header("Location: " . ($row['passwordReset'] ? "userWWreset.php" : "homePage.php"));
                 exit;
             } else {
-                $showAlert = true;
+                $showAlert = true; // Als wachtwoord niet overeenkomt, toon een waarschuwing
             }
         } else {
-            $showAlert = true;
+            $showAlert = true; // Als gebruiker niet actief is of e-mail niet gevonden, toon een waarschuwing
         }
     } catch (PDOException $e) {
-        echo 'Query error: ' . $e->getMessage();
+        echo 'Query error: ' . $e->getMessage(); // Vang databasefouten af
         die();
     } catch (Exception $e) {
-        echo 'Error: ' . $e->getMessage();
+        echo 'Error: ' . $e->getMessage(); // Vang algemene fouten af
         die();
     }
 }
-require("header.php");
+
+require("header.php"); // Inclusie van header-bestand voor HTML-pagina
 ?>
+<!DOCTYPE html>
+<html lang="nl">
 <head>
-    <title>Login Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Pagina</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -138,6 +149,11 @@ require("header.php");
                 </div>
                 <br><br>
                 <button type="submit" class="btn" name="secure">Login</button>
+                <?php
+                if ($showAlert) {
+                    echo '<div class="alert alert-danger mt-3" role="alert">Inloggegevens incorrect. Probeer opnieuw.</div>';
+                }
+                ?>
             </form>
         </div>
     </div>
@@ -148,5 +164,5 @@ require("header.php");
     }
     </script>
 <?php
-require("footer.php");
+require("footer.php"); // Inclusie van footer-bestand voor HTML-pagina
 ?>
