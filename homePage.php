@@ -20,10 +20,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["end_project"])) {
         $description = $_POST["description"];
         $project_id = $_POST["project_id"];
 
-        // Voorbereiden en uitvoeren van de SQL-query voor het bijwerken van het eindtijd van een project
-        $stmt = $conn->prepare("UPDATE `projects` SET `end_time` = NOW() WHERE `title` = ?");
-        $stmt->bind_param("s", $title);
-        $stmt->execute();
+        try {
+            $stmt = $conn->prepare("UPDATE `projects` SET `end_time` = NOW() WHERE `title` = ?");
+            $stmt->bind_param("s", $title);
+            $stmt->execute();
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
     }
 }
 
@@ -39,7 +42,6 @@ try {
     $sched_res = [];
     $project_res = [];
 
-    // Verwerken van de queryresultaten en opslaan in arrays voor later gebruik
     while ($row = $projects->fetch_assoc()) {
         $project_res[$row['id']] = $row;
     }
@@ -61,7 +63,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
     $_SESSION["selected_project_id"] = $selectedProjectId;
 }
 
-// Laden van geselecteerde projectinformatie uit de sessie
 if (isset($_SESSION["selected_project_id"])) {
     $selectedProjectId = $_SESSION["selected_project_id"];
     try {
@@ -74,12 +75,10 @@ if (isset($_SESSION["selected_project_id"])) {
     }
 }
 
-// Zichtbaarheid van de groene balk instellen in de sessie bij het starten van een project
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["start_project"])) {
     $_SESSION["green_bar_visible"] = true;
 }
 
-// Laden van de zichtbaarheid van de groene balk uit de sessie
 $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_visible"] : false;
 ?>
 
@@ -116,9 +115,7 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                                     <label for="description" class="control-label">Beschrijving</label>
                                     <textarea rows="3" class="form-control form-control-sm rounded-0" name="description" id="description" required><?= $selectedProject['description'] ?? '' ?></textarea>
                                 </div>
-
-                                <input type="checkbox" id="showDateTime" onchange="toggleDateTime()"> selecteer een datum
-                                    <div id="dateTimeContainer" style="display: none;">
+                                <div id="dateTimeContainer" style="display: none;">
                                     <div class="form-group mb-2">
                                         <label for="start_time" class="control-label">Start</label>
                                         <input type="datetime-local" class="form-control form-control-sm rounded-0" name="start_time" id="start_time">
@@ -269,7 +266,6 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                 }
             });
         }); 
-
 
         function startProject() {
             $.ajax({

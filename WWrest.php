@@ -1,9 +1,7 @@
 <?php
-// Reset voor gebruiker
 require("start.php");
 
 if (!isset($_SESSION['email'])) {
-    // User is reeds aangemeld
     header("Location: loginPage.php");
     exit;
 }
@@ -12,125 +10,60 @@ require("pdo.php");
 function sendMail($to, $secret, $voornaam, $ww) {
     $from = "seppe.demoor@leerling.go-ao.be";
     $subject = "Onderwerp van de mail";
-    $message = "Beste $voornaam,
-                we hebben je wachwoord gereset.
-                Je nieuwe wachwoord is $ww.
-                Je moet ook nog deze code ingeven: $secret.
-                Klik op onderstaande link:
-                https://seppe.go-ao.be/login%20CC/userWWreset.php?secret=$secret
-                Met vriendelijke groeten,
-                Admin van de website.";
-
-    if (mail($to, $subject, $message, $from)) {
-        echo "Bericht is verzonden";
-    } else {
-        echo "Bericht is niet verzonden";
-    }
+    $message = "Beste $voornaam,\nwe hebben je wachwoord gereset.\nJe nieuwe wachwoord is $ww.\nJe moet ook nog deze code ingeven: $secret.\nKlik op onderstaande link:\nhttps://seppe.go-ao.be/login%20CC/userWWreset.php?secret=$secret\nMet vriendelijke groeten,\nAdmin van de website.";
+    echo mail($to, $subject, $message, $from) ? "Bericht is verzonden" : "Bericht is niet verzonden";
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $wachtwoord = trim($_POST["password"]);
-    $hash = password_hash($wachtwoord, PASSWORD_DEFAULT);
-    $id = $_POST['id'];
-    $email = $_POST["email"];
-    $voornaam = $_POST['voornaam'];
+    $hash = password_hash(trim($_POST["password"]), PASSWORD_DEFAULT);
     $secret = rand(10000000, 99999999);
-
-    $query = "UPDATE `users` SET `userPassword` = :pw, `passwordReset` = 1, `secret` = :secr WHERE `id` = :ID";
-    $values = [':pw' => $hash, ':ID' => $id, ':secr' => $secret];
+    $values = [':pw' => $hash, ':ID' => $_POST['id'], ':secr' => $secret];
 
     try {
-        $res = $pdo->prepare($query);
-        $res->execute($values);
-        sendMail($email, $secret, $voornaam, $wachtwoord);
+        $pdo->prepare("UPDATE `users` SET `userPassword` = :pw, `passwordReset` = 1, `secret` = :secr WHERE `id` = :ID")->execute($values);
+        sendMail($_POST["email"], $secret, $_POST['voornaam'], $_POST["password"]);
         header("Location: useroverzicht2.0.php");
         exit;
     } catch (PDOException $e) {
-        // Error in de query
         echo 'Query error<br>' . $e;
         die();
     }
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["id"])) {
-    $id = $_GET["id"];
-    $query = "SELECT `naam`, `voornaam`, `email` FROM `users` WHERE `id` = :ID";
-    $values = [':ID' => $id];
-
     try {
-        $res = $pdo->prepare($query);
-        $res->execute($values);
+        $res = $pdo->prepare("SELECT `naam`, `voornaam`, `email` FROM `users` WHERE `id` = :ID");
+        $res->execute([':ID' => $_GET["id"]]);
+        $row = $res->fetch(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        // Error in de query
         echo 'Query error<br>' . $e;
         die();
     }
-    $row = $res->fetch(PDO::FETCH_ASSOC);
 }
 
 require("header.php");
 ?>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wachtwoord Reset</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            margin-top: 50px;
-        }
-
-        .col-sm-6 {
-            margin-bottom: 20px;
-        }
-
-        h3 {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            margin-bottom: 5px;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            box-sizing: border-box;
-        }
-
-        .btn-success {
-            display: inline-block;
-            font-weight: 400;
-            color: #fff;
-            text-align: center;
-            vertical-align: middle;
-            user-select: none;
-            background-color: #28a745;
-            border: 1px solid #28a745;
-            padding: 10px 20px;
-            font-size: 1rem;
-            line-height: 1.5;
-            border-radius: 0.25rem;
-            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-            cursor: pointer;
-            text-decoration: none;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
+        .container { margin-top: 50px; }
+        .col-sm-6 { margin-bottom: 20px; }
+        h3 { margin-bottom: 20px; }
+        .form-label { margin-bottom: 5px; }
+        .form-control { width: 100%; padding: 10px; margin-bottom: 20px; box-sizing: border-box; }
+        .btn-success { display: inline-block; font-weight: 400; color: #fff; text-align: center; vertical-align: middle; user-select: none; background-color: #28a745; border: 1px solid #28a745; padding: 10px 20px; font-size: 1rem; line-height: 1.5; border-radius: 0.25rem; transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; cursor: pointer; text-decoration: none; }
     </style>
 </head>
-
 <body>
     <div class="container mt-5">
         <div class="row">
             <div class="col-sm-6">
-                <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+                <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                     <div class="mb-3">
                         <h3>Wachtwoord van <?php echo $row['naam']; ?></h3>
                     </div>
@@ -138,16 +71,14 @@ require("header.php");
                         <label for="Password" class="form-label">Nieuw tijdelijk ww</label>
                         <input type="password" class="form-control" id="Password" name="password" required>
                     </div>
-                    <input type="hidden" value="<?php echo $id; ?>" name="id">
+                    <input type="hidden" value="<?php echo $_GET["id"]; ?>" name="id">
                     <input type="hidden" name="email" value="<?php echo $row["email"]; ?>">
                     <input type="hidden" name="voornaam" value="<?php echo $row["voornaam"]; ?>">
                     <button type="submit" class="btn btn-success">reset</button>
                 </form>
             </div>
-            <div class="col-sm-6">
-            </div>
         </div>
     </div>
-<?php
-    require("footer.php");
-?>
+<?php require("footer.php"); ?>
+</body>
+</html>

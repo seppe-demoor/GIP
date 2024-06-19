@@ -32,8 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET["id"])) {
     } 
     catch (PDOException $e) 
     {
-        // Loggen van eventuele fouten en doorsturen naar het gebruikersoverzicht
-        error_log('Error fetching user data: ' . $e);
+         echo 'Error fetching user data:' . $e->getMessage();
         header("Location: useroverzicht.php");
         exit();
     }

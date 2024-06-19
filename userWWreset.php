@@ -10,52 +10,41 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $secret = trim($_POST["secret"]);
     $id = $_SESSION["id"];
 
-    $query = "SELECT `secret` FROM `users` WHERE `id` = :ID";
-    $values = [':ID' => $id];
-
     try {
+        $query = "SELECT `secret` FROM `users` WHERE `id` = :ID";
         $res = $pdo->prepare($query);
-        $res->execute($values);
-    } catch (PDOException $e) {
-        // error in query
-        echo "Query error:" . $e;
-        die();
-    }
-    $row = $res->fetch(PDO::FETCH_ASSOC);
+        $res->execute([':ID' => $id]);
+        $row = $res->fetch(PDO::FETCH_ASSOC);
 
-    if ($row["secret"] == $secret) {
-        // secret is OK
-        if ($password1 === $password2) {
-            $password = password_hash($password1, PASSWORD_DEFAULT);
-            $query = "UPDATE `users` SET `userPassword` = :pw, `passwordReset` = 0 WHERE `id` = :ID";
-            $values = [':pw' => $password, ':ID' => $id,];
-
-            try {
+        if ($row["secret"] == $secret) {
+            if ($password1 === $password2) {
+                $password = password_hash($password1, PASSWORD_DEFAULT);
+                $query = "UPDATE `users` SET `userPassword` = :pw, `passwordReset` = 0 WHERE `id` = :ID";
                 $res = $pdo->prepare($query);
-                $res->execute($values);
+                $res->execute([':pw' => $password, ':ID' => $id]);
                 header("Location: beveiligd.php");
                 exit;
-            } catch (PDOException $e) {
-                // error in query
-                echo "Query error:" . $e;
-                die();
+            } else {
+                $showAlert = true;
+                $alertText = "<strong>FOUT!</strong> De 2 getypte wachtwoorden zijn niet gelijk, probeer opnieuw.";
             }
         } else {
             $showAlert = true;
-            $alertText = "<strong>FOUT!</strong> De 2 getypde wachtwoorden zijn niet gelijk, probeer opnieuw.";
+            $alertText = "<strong>FOUT!</strong> Uw code is niet correct ingegeven.";
         }
-    } else {
-        // secret is fout
-        $showAlert = true;
-        $alertText = "<strong>FOUT!</strong> Uw code is niet correct ingegeven.";
+    } catch (PDOException $e) {
+        echo "Query error: " . $e->getMessage();
+        die();
     }
 }
+
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['secret'])) {
     $secret = $_GET['secret'];
 }
 require("header.php");
 ?>
 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -68,19 +57,15 @@ require("header.php");
             margin: 0;
             padding: 0;
         }
-
         .container {
             margin-top: 50px;
         }
-
         .col-sm-6 {
             margin-bottom: 20px;
         }
-
         h3 {
             margin-bottom: 20px;
         }
-
         .alert {
             color: #721c24;
             background-color: #f8d7da;
@@ -89,22 +74,18 @@ require("header.php");
             border-radius: 5px;
             margin-bottom: 20px;
         }
-
         form {
             margin-top: 20px;
         }
-
         .form-label {
             margin-bottom: 5px;
         }
-
         .form-control {
             width: 100%;
             padding: 10px;
             margin-bottom: 20px;
             box-sizing: border-box;
         }
-
         .btn-success {
             display: inline-block;
             font-weight: 400;
@@ -124,7 +105,6 @@ require("header.php");
         }
     </style>
 </head>
-
 <body>
     <div class="container">
         <div class="row">
@@ -155,6 +135,6 @@ require("header.php");
             </div>
         </div>
     </div>
-<?php
-    require("footer.php");
-?>
+<?php require("footer.php"); ?>
+</body>
+</html>

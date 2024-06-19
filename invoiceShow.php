@@ -2,15 +2,13 @@
 require("start.php");
 require("pdo.php");
 
-// Functie om uren te berekenen
 function calculateHours($start, $end) {
     $start_time = strtotime($start);
     $end_time = strtotime($end);
-    $total_minutes = round(($end_time - $start_time) / 60); // Omzetten naar minuten en afronden
-    return round($total_minutes / 60, 2); // Omzetten naar uren met 2 decimalen
+    $total_minutes = round(($end_time - $start_time) / 60);
+    return round($total_minutes / 60, 2);
 }
 
-// Functie om de klantgegevens op te halen
 function getCustomerDetails($customerId) {
     global $conn;
     try {
@@ -18,7 +16,6 @@ function getCustomerDetails($customerId) {
                                         FROM customers 
                                         JOIN countries ON customers.country = countries.id 
                                         WHERE customers.id = '$customerId'");
-
         if (!$customer_query) {
             throw new Exception("Query error: " . $conn->error);
         }
@@ -33,14 +30,12 @@ function getCustomerDetails($customerId) {
     }
 }
 
-// Laden van geselecteerde projectinformatie uit de querystring
 $selectedProjectId = $_POST["project_id"] ?? null;
 if (!$selectedProjectId) {
     die("Geen project geselecteerd.");
 }
 
 try {
-    // Check if there are any work times that have not been invoiced
     $invoicedCheckQuery = $conn->query("SELECT COUNT(*) as count FROM `work_time` WHERE `project_id` = $selectedProjectId AND `invoiced` = 0");
     if (!$invoicedCheckQuery) {
         throw new Exception("Query error: " . $conn->error);
@@ -50,7 +45,6 @@ try {
         throw new Exception("Geen uren beschikbaar om te factureren.");
     }
 
-    // Haal projectgegevens op
     $selectedProjectQuery = $conn->query("SELECT * FROM `projects` WHERE `id` = $selectedProjectId");
     if (!$selectedProjectQuery) {
         throw new Exception("Query error: " . $conn->error);
@@ -60,17 +54,14 @@ try {
         throw new Exception("Geen project gevonden met ID: $selectedProjectId");
     }
 
-    // Haal klantgegevens op
     $customerDetails = getCustomerDetails($selectedProject['customer_id']);
 
-    // Bereken totale gewerkte uren
     $totalHours = 0;
     $work_time_query = $conn->query("SELECT * FROM `work_time` WHERE `project_id` = $selectedProjectId AND `invoiced` = 0");
     while ($work = $work_time_query->fetch_assoc()) {
         $totalHours += calculateHours($work['start_time'], $work['end_time']);
     }
 
-    // Fetch price per hour from the database based on the selected project ID
     $projectPriceQuery = $conn->query("SELECT price_per_hour FROM `projects` WHERE `id` = $selectedProjectId");
     if (!$projectPriceQuery) {
         throw new Exception("Query error: " . $conn->error);
@@ -81,13 +72,8 @@ try {
     }
 
     $priceperhour = $projectPriceData['price_per_hour'];
-
-    // Calculate total price
-    if (is_numeric($totalHours) && is_numeric($priceperhour)) {
-        $totalPrice = number_format($totalHours * $priceperhour, 2);
-    }
+    $totalPrice = number_format($totalHours * $priceperhour, 2);
 } catch (Exception $e) {
-    // Toon de foutmelding in een pop-up
     echo "<script>
         alert('{$e->getMessage()}');
         window.location.href = 'Invoice.php';
@@ -102,13 +88,11 @@ try {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            size: A4; /* instellingen voor A4-formaat */
+            size: A4;
         }
-
         @page {
-            margin: 1cm; /* marges instellen voor A4-formaat */
+            margin: 1cm;
         }
-
         .header {
             background-color: #008BBA;
             color: white;
@@ -118,33 +102,26 @@ try {
             justify-content: space-between;
             align-items: flex-start;
         }
-
         .content {
             padding: 20px;
         }
-
         .footer {
             background-color: #f0f0f0;
             padding: 10px;
             text-align: center;
         }
-
         .xsmall {
             font-size: 13px;
         }
-
         .small {
             font-size: 15px;
         }
-
         .large {
             font-size: 24px;
         }
-
         .left {
             text-align: left;
         }
-
         .right {
             text-align: right;
         }
@@ -163,17 +140,15 @@ try {
         </div>
         <div class="right">
             <p class="xsmall">Aan</p>
-            <?php
-            if ($selectedProject) {
-                echo "<p class='large'><strong>" . $customerDetails['name'] . "</strong></p>";
-                echo "<p class='small'>" . $customerDetails['street'] . "</p>";
-                echo "<p class='small'>" . $customerDetails['zip_code'] . " " . $customerDetails['place'] . "</p>";
-                echo "<p class='small'>" . $customerDetails['country_name'] . "</p>";
-                echo "<p class='small'>Btw: " . $customerDetails['VAT_number'] . "</p>";
-            } else {
-                echo "<p class='small'>Selecteer eerst een project om de klantgegevens weer te geven.</p>";
-            }
-            ?>
+            <?php if ($selectedProject): ?>
+                <p class="large"><strong><?php echo $customerDetails['name']; ?></strong></p>
+                <p class="small"><?php echo $customerDetails['street']; ?></p>
+                <p class="small"><?php echo $customerDetails['zip_code'] . " " . $customerDetails['place']; ?></p>
+                <p class="small"><?php echo $customerDetails['country_name']; ?></p>
+                <p class="small">Btw: <?php echo $customerDetails['VAT_number']; ?></p>
+            <?php else: ?>
+                <p class="small">Selecteer eerst een project om de klantgegevens weer te geven.</p>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -185,40 +160,31 @@ try {
             <div class="right">
                 <p style="font-size: 18px;"><strong>FACTUUR <?php echo date("Y") ?>-0030</strong></p>
                 <p class="small" style="color: grey;">Aangemaakt op: <?php echo date("d-m-Y") ?></p>
-                <?php
-                $vervalDatum = date('d-m-Y', strtotime('+1 month'));
-                echo "<p class='small' style='color: grey;'>Vervaldatum: $vervalDatum</p>";
-                ?>
+                <?php $vervalDatum = date('d-m-Y', strtotime('+1 month')); ?>
+                <p class="small" style="color: grey;">Vervaldatum: <?php echo $vervalDatum; ?></p>
             </div>
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
             <div style="width: 40%;">
                 <h3 style="font-size: 16px; color: grey;">Beschrijving</h3>
-                <p class="small"><?= $selectedProject['description'] ?></p>
+                <p class="small"><?php echo $selectedProject['description']; ?></p>
             </div>
-
             <div style="width: 15%;">
                 <h3 style="font-size: 16px; color: grey;">Prijs excl. btw</h3>
-                <p class="small">€<?= number_format($priceperhour, 2) ?></p>
+                <p class="small">€<?php echo number_format($priceperhour, 2); ?></p>
             </div>
-
             <div style="width: 13%;">
                 <h3 style="font-size: 16px; color: grey;">Btw-tarief</h3>
-                <p class="small"><?= $customerDetails['tax_rate'] ?>%</p>
+                <p class="small"><?php echo $customerDetails['tax_rate']; ?>%</p>
             </div>
-
             <div style="width: 15%;">
                 <h3 style="font-size: 16px; color: grey;">Aantal</h3>
-                <p class="small"><?= $totalHours ?>u</p>
+                <p class="small"><?php echo $totalHours; ?>u</p>
             </div>
-
             <div style="width: 6%;">
                 <h3 style="font-size: 16px; color: grey;">Totaal</h3>
-                <?php
-                $totalPrice = number_format($totalHours * $priceperhour, 2);
-                echo "<p class='small'>€$totalPrice</p>";
-                ?>
+                <p class="small">€<?php echo $totalPrice; ?></p>
             </div>
         </div>
 
@@ -228,36 +194,23 @@ try {
                     <h3 style="font-size: 16px; color: grey;">Subtotaal exclusief btw</h3>
                 </div>
                 <div style="width: 15%; text-align: right;">
-                    <p class="small">€<?= $totalPrice ?></p>
+                    <p class="small">€<?php echo $totalPrice; ?></p>
                 </div>
             </div>
         </div>
 
         <div style="display: flex; justify-content: flex-end;">
             <div style="width: 90%; text-align: right;">
-                <h3 style="font-size: 16px; color: grey;">Btw (<?= $customerDetails['tax_rate'] ?>%)</h3>
+                <h3 style="font-size: 16px; color: grey;">Btw (<?php echo $customerDetails['tax_rate']; ?>%)</h3>
             </div>
             <div style="width: 15%; text-align: right;">
                 <?php
-                $VAT = 0; // Initialisatie van de variabele VAT
-
-                // Verwijder alle niet-numerieke tekens, inclusief komma's
                 $totalPrice = preg_replace("/[^0-9.]/", "", $totalPrice);
-
-                // Converteer $totalPrice naar een float
                 $totalPrice = floatval($totalPrice);
-
-                // Controleer of $totalPrice numeriek is voordat je de berekening uitvoert
                 if (is_numeric($totalPrice) && is_numeric($customerDetails['tax_rate'])) {
-                    // Bereken de BTW
-                    $VAT = $totalPrice * ($customerDetails['tax_rate'] / 100);
-                
-                    // Formatteer het BTW-bedrag met twee cijfers achter de komma
-                    $formattedVAT = number_format($VAT, 2);
+                    $VAT = number_format($totalPrice * ($customerDetails['tax_rate'] / 100), 2);
                 }
-                 
-                // Laat de BTW zien
-                echo "<p class='small'>€$formattedVAT</p>";
+                echo "<p class='small'>€$VAT</p>";
                 ?>
             </div>
         </div>
@@ -275,12 +228,12 @@ try {
         </div>
 
         <form method="post" action="generate_invoice.php">
-            <input type="hidden" name="project_id" value="<?= $selectedProjectId ?>">
-            <input type="hidden" name="total_price" value="<?= $totalPrice ?>">
-            <input type="hidden" name="VAT" value="<?= $VAT ?>">
-            <input type="hidden" name="total_payment" value="<?= $totalPayment ?>">
-            <input type="hidden" name="price_per_hour" value="<?= $priceperhour ?>">
-            <input type="hidden" name="total_hours" value="<?= $totalHours ?>">
+            <input type="hidden" name="project_id" value="<?php echo $selectedProjectId; ?>">
+            <input type="hidden" name="total_price" value="<?php echo $totalPrice; ?>">
+            <input type="hidden" name="VAT" value="<?php echo $VAT; ?>">
+            <input type="hidden" name="total_payment" value="<?php echo $totalPayment; ?>">
+            <input type="hidden" name="price_per_hour" value="<?php echo $priceperhour; ?>">
+            <input type="hidden" name="total_hours" value="<?php echo $totalHours; ?>">
             <div style="display: flex; justify-content: space-between; margin-top: 20px;">
                 <button type="submit" name="action" value="create">Maak Factuur</button>
                 <button type="submit" name="action" value="cancel">Annuleren</button>

@@ -5,7 +5,7 @@ require("pdo.php");
 
 
 if (!isset($_SESSION["email"])) {
-    header("Location: loginPage.php");
+    header("Location: loginPage.php");  //kijkt of de user is ingelogd
     exit;
 }
 

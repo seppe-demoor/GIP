@@ -2,7 +2,6 @@
 require("start.php");
 
 if (isset($_SESSION['email'])) {
-    //user is reeds aangemeld
     header("Location: homePage.php");
     exit;
 }
@@ -10,50 +9,40 @@ if (isset($_SESSION['email'])) {
 $showAlert = false;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    require("pdo.php");
-
-    $email = trim($_POST["email"]);
-    $password = trim($_POST["password"]);
-
-    //query klaarzetten
-    $query = "SELECT `id`,`email`,`userPassword`,`passwordReset`,`admin`,`active` FROM `users` WHERE `email` = :email";
-    //values voor de pdo
-    $values = [':email' => $email];
-
-
     try {
+        require("pdo.php");
+
+        $email = trim($_POST["email"]);
+        $password = trim($_POST["password"]);
+        
+        $query = "SELECT `id`, `email`, `userPassword`, `passwordReset`, `admin`, `active` FROM `users` WHERE `email` = :email";
+        $values = [':email' => $email];
+
         $res = $pdo->prepare($query);
         $res->execute($values);
-    }
-    catch (PDOException $e) {
-        //error query
-        echo 'Query error <br>'.$e;
-        die();
-    }
-    //haal rij op uit resultaat
 
-    $row = $res->fetch(PDO::FETCH_ASSOC);
+        $row = $res->fetch(PDO::FETCH_ASSOC);
 
-    if ($row['active'] == true) {
-        if ($email == $row['email'] && password_verify($password, $row['userPassword'])) {
-            $_SESSION["email"] = $email;
-            $_SESSION['CREATED'] = time();
-            $_SESSION['id'] = $row['id'];
-            $_SESSION['admin'] = $row['admin'];
-            if ($row['passwordReset']) {
-                header("Location: userWWreset.php");
+        if ($row && $row['active']) {
+            if (password_verify($password, $row['userPassword'])) {
+                $_SESSION["email"] = $email;
+                $_SESSION['CREATED'] = time();
+                $_SESSION['id'] = $row['id'];
+                $_SESSION['admin'] = $row['admin'];
+                header("Location: " . ($row['passwordReset'] ? "userWWreset.php" : "homePage.php"));
                 exit;
             } else {
-                header("Location: homePage.php");
-                exit;
+                $showAlert = true;
             }
         } else {
-            //userid en wachtwoord komen niet overeen   
             $showAlert = true;
         }
-    } else {
-        //geen actieve user
-        $showAlert = true;
+    } catch (PDOException $e) {
+        echo 'Query error: ' . $e->getMessage();
+        die();
+    } catch (Exception $e) {
+        echo 'Error: ' . $e->getMessage();
+        die();
     }
 }
 require("header.php");
@@ -76,11 +65,10 @@ require("header.php");
             margin-top: 50px;
             width: 100%;
             max-width: 400px;
-            box-shadow: 0px 5px 10px rgba(0.5   , 00.5, 0.5, 0.5);
+            box-shadow: 0px 5px 10px rgba(0.5, 0.5, 0.5, 0.5);
             margin: 125px auto;
-            
-            
         }
+        
         .logo {
             text-align: center;
             margin-bottom: 20px;
@@ -117,7 +105,6 @@ require("header.php");
             font-size: 14px; 
             border-radius: 5px;
             width: 125px;
-            
         }
 
         .btn:hover {
@@ -133,43 +120,33 @@ require("header.php");
     </style>
 </head>
 <body>
-            <div class="login-container">
-                <div class="logo">
-                    <img src="NWNSoftware.png" alt="logo">
-                <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
-
-                    <div>
-                        <label for="email" class="form-label">email:</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
+    <div class="login-container">
+        <div class="logo">
+            <img src="NWNSoftware.png" alt="logo">
+            <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                <div>
+                    <label for="email" class="form-label">Email:</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div>
+                    <label for="Password" class="form-label">Password:</label>
+                    <input type="password" class="form-control" id="Password" name="password" required>
+                    <div class="float-start">
+                        <input class="form-check-input" type="checkbox" id="laatzien" onchange="wwcheck()">
+                        <label class="form-check-label" for="laatzien">Toon wachtwoord</label>
                     </div>
-
-                        <div>
-                            <label for="Password" class="form-label">Password:</label>
-                            <input type="password" class="form-control" id="Password" name="password" required>
-                            <div class="float-start">
-                            <input class="form-check-input" type="checkbox" id="laatzien" onchange="wwcheck()">
-                            <label class="form-check-label" for="laatzien">Toon wachtwoord</label>
-                            </div>
-                        </div>
-                        <br>
-                        <br>
-                        <button type="submit" class="btn" name="secure">Login</button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <br><br>
+                <button type="submit" class="btn" name="secure">Login</button>
+            </form>
         </div>
     </div>
     <script>
-    function wwcheck(){
-        let wwzien =document.getElementById('laatzien').checked;
-        if (wwzien == true) {
-            document.getElementById('Password').type = 'text';
-        }
-        else {
-            document.getElementById('Password').type = 'password';
-        }
+    function wwcheck() {
+        let wwzien = document.getElementById('laatzien').checked;
+        document.getElementById('Password').type = wwzien ? 'text' : 'password';
     }
-</script>
+    </script>
 <?php
 require("footer.php");
 ?>
