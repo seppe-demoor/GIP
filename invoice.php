@@ -15,8 +15,8 @@ try {
     // Vang de fout op en geef een JavaScript-waarschuwing weer met de foutmelding, stuur de gebruiker door naar de homepagina
     echo "<script>
         alert('{$e->getMessage()}');
-        window.location.href = 'homePage.php';
     </script>";
+    header("Location: homePage.php");
     exit();
 }
 

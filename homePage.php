@@ -130,13 +130,6 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
                     </div>
                 </div>
 
-                <div class="card-footer">
-                    <div class="text-center">
-                        <button id="saveButton" class="btn btn-primary btn-sm rounded-0" type="submit" form="schedule-form" style="display: none;"><i class="fa fa-save"></i> Save</button>
-                        <button id="cancelButton" class="btn btn-default border btn-sm rounded-0" type="reset" form="schedule-form" style="display: none;"><i class="fa fa-reset"></i> Cancel</button>
-                    </div>
-                </div>
-
                 <div class="card rounded-0 shadow mt-3">
                     <div class="card-header bg-gradient bg-primary text-light mt-3">
                         <h5 class="card-title">Mijn Project</h5>
