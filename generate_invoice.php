@@ -1,9 +1,13 @@
 <?php
+// Laad het startbestand voor initiële instellingen en sessiebeheer
 require("start.php");
+// Laad het PDO-bestand voor de databaseverbinding
 require("pdo.php");
-require __DIR__ . '/vendor/autoload.php'; // Make sure to include the Composer autoload file
+// Laad de Composer autoload file om externe libraries te gebruiken
+require __DIR__ . '/vendor/autoload.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Haal gegevens op uit het POST-verzoek
     $projectId = $_POST['project_id'] ?? null;
     $action = $_POST['action'] ?? null;
     $totalPrice = $_POST['total_price'] ?? null;
@@ -12,6 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pricePerHour = $_POST['price_per_hour'] ?? null;
     $totalHours = $_POST['total_hours'] ?? null;
 
+    // Controleer of een project is geselecteerd
     if (!$projectId) {
         die("Geen project geselecteerd.");
     }
@@ -24,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!$projectQuery) {
                     throw new Exception("Query error: " . $conn->error);
                 }
-                $projectData = $projectQuery->fetch_assoc();
+                $projectData = $projectQuery->fetch_assoc(); // projectQuery ophalen
                 if (!$projectData) {
                     throw new Exception("Geen project gevonden met ID: $projectId");
                 }
@@ -50,16 +55,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Bereken totale gewerkte uren
             try {
+                // Initialiseer de variabele om het totaal aantal uren bij te houden
                 $totalHours = 0;
+            
+                // Voer een SQL-query uit om alle werkuren op te halen voor het opgegeven project die nog niet gefactureerd zijn
                 $work_time_query = $conn->query("SELECT * FROM `work_time` WHERE `project_id` = $projectId AND `invoiced` = 0");
+            
+                // Loop door elke rij in de resultaten van de query
                 while ($work = $work_time_query->fetch_assoc()) {
+                    // Bereken de gewerkte uren voor elke rij en tel deze op bij het totaal
                     $totalHours += calculateHours($work['start_time'], $work['end_time']);
                 }
             } catch (Exception $e) {
+                // Als er een uitzondering wordt gegooid, toon de foutmelding en stop de uitvoering
                 die($e->getMessage());
             }
+            
 
-            // Fetch price per hour from the database based on the selected project ID
+            // Haal prijs per uur op uit de database op basis van het geselecteerde project-ID
             try {
                 $projectPriceQuery = $conn->query("SELECT price_per_hour FROM `projects` WHERE `id` = $projectId");
                 if (!$projectPriceQuery) {
@@ -67,51 +80,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 $projectPriceData = $projectPriceQuery->fetch_assoc();
                 if (!$projectPriceData) {
-                    throw new Exception("No price data found for project with ID: $projectId");
+                    throw new Exception("Geen prijsgegevens gevonden voor project met ID: $projectId");
                 }
-
                 $pricePerHour = $projectPriceData['price_per_hour'];
             } catch (Exception $e) {
                 die($e->getMessage());
             }
 
-            // Calculate total price and VAT
-            if (is_numeric($totalHours) && is_numeric($pricePerHour)) {
-                $totalPrice = $totalHours * $pricePerHour;
-            }
-            $VAT = $totalPrice * ($taxRate / 100);
-            $totalPayment = $totalPrice + $VAT;
+            // Bereken totale prijs en BTW
+                if (is_numeric($totalHours) && is_numeric($pricePerHour)) {
+                    // Controleer of zowel $totalHours als $pricePerHour numerieke waarden zijn
+                    $totalPrice = $totalHours * $pricePerHour;
+                    // Bereken de totale prijs door het totaal aantal uren te vermenigvuldigen met de prijs per uur
+                }
+                $VAT = $totalPrice * ($taxRate / 100);
+                // Bereken de BTW door de totale prijs te vermenigvuldigen met het belastingtarief gedeeld door 100
+                $totalPayment = $totalPrice + $VAT;
+                // Bereken het totale te betalen bedrag door de BTW bij de totale prijs op te tellen
 
-            // Ensure the values are properly formatted for SQL
-            $totalPrice = number_format($totalPrice, 2, '.', '');
-            $VAT = number_format($VAT, 2, '.', '');
-            $totalPayment = number_format($totalPayment, 2, '.', '');
-            $pricePerHour = number_format($pricePerHour, 2, '.', '');
+                // Zorg ervoor dat de waarden correct zijn geformatteerd voor SQL
+                $totalPrice = number_format($totalPrice, 2, '.', ''); // Formatteer de totale prijs met 2 decimalen en gebruik een punt als decimaalteken
+                $VAT = number_format($VAT, 2, '.', '');
+                $totalPayment = number_format($totalPayment, 2, '.', '');
+                $pricePerHour = number_format($pricePerHour, 2, '.', '');
+                
+
 
             // Maak de factuur aan in de database
             try {
                 $invoiceDate = date('Y-m-d');
                 $dueDate = date('Y-m-d', strtotime('+1 month'));
-
                 $insertInvoiceQuery = "INSERT INTO `Invoices` (`customer_id`, `invoice_date`, `due_date`, `net_amount`, `VAT_percent`, `total_amount`, `hourly_rate`)
                                        VALUES ('$customerId', '$invoiceDate', '$dueDate', '$totalPrice', '$taxRate', '$totalPayment', '$pricePerHour')";
-
                 if (!$conn->query($insertInvoiceQuery)) {
                     throw new Exception("Insert error: " . $conn->error);
                 }
-
-                // Fetch the last inserted invoice ID
+                // Haal de laatst ingevoegde factuur-ID op
                 $invoiceId = $conn->insert_id;
             } catch (Exception $e) {
                 die($e->getMessage());
             }
 
-            // Generate PDF with stylesheet
+            // Genereer PDF met stylesheet
             try {
-                $mpdf = new \Mpdf\Mpdf();
-                $stylesheet = file_get_contents('style_inschrijving.css');
-                $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
-                $mpdf->WriteHTML("
+                // Maak een nieuwe instantie van de Mpdf-klasse
+                    $mpdf = new \Mpdf\Mpdf();
+
+                    // Lees de inhoud van het CSS-stylesheet bestand
+                    $stylesheet = file_get_contents('style_inschrijving.css');
+
+                    // Schrijf de CSS-stylesheet naar het PDF-document, waarbij het wordt geïnterpreteerd als CSS voor de header
+                    $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
+
+                    // Begin met het schrijven van HTML-inhoud naar het PDF-document
+                    $mpdf->WriteHTML("
                     <div class='header clearfix'>
                         <div class='left'>
                             <p class='xsmall'>Van</p>
@@ -130,7 +152,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <p class='small'>Btw: {$customerData['VAT_number']}</p>
                         </div>
                     </div>
-
                     <div class='content'>
                         <div style='display: flex; justify-content: space-between; align-items: flex-start;'>
                             <div class='left'>
@@ -142,7 +163,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <p class='small' style='color: grey;'>Vervaldatum: " . date('d-m-Y', strtotime('+1 month')) . "</p>
                             </div>
                         </div>
-
                         <div style='display: flex; justify-content: space-between; align-items: flex-start;'>
                             <div style='width: 40%;'>
                                 <h3 style='font-size: 16px; color: grey;'>Beschrijving</h3>
@@ -165,7 +185,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <p class='small'>€{$totalPrice}</p>
                             </div>
                         </div>
-
                         <div style='margin-top: 20px;'>
                             <div style='display: flex; justify-content: space-between;'>
                                 <div style='width: 55%; text-align: right;'>
@@ -176,7 +195,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                             </div>
                         </div>
-
                         <div style='display: flex; justify-content: flex-end;'>
                             <div style='width: 90%; text-align: right;'>
                                 <h3 style='font-size: 16px; color: grey;'>Btw ({$taxRate}%)</h3>
@@ -185,7 +203,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <p class='small'>€{$VAT}</p>
                             </div>
                         </div>
-
                         <div style='display: flex; justify-content: flex-end;'>
                             <div style='width: 90%; text-align: right;'>
                                 <h3 style='font-size: 16px; color: grey;'>Te betalen</h3>
@@ -195,7 +212,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                         </div>
                     </div>
-
                     <div class='footer'>
                         <p class='small'>Betaal met je bank-app</p>
                         <p class='small'>IBAN: BE84 7330 7114 2759</p>
@@ -205,26 +221,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <p class='small'>+32468183549</p>
                     </div>
                 ", \Mpdf\HTMLParserMode::HTML_BODY);
-                $pdfContent = $mpdf->Output('', 'S'); // Output as a string
+                $pdfContent = $mpdf->Output('', 'S'); // Output als een string
             } catch (Exception $e) {
                 die($e->getMessage());
             }
 
-            // Save PDF to database
+            // Sla PDF op in de database
             try {
                 $insertPdfQuery = "INSERT INTO `pdf_invoices` (`invoice_id`, `pdf_data`, `created_at`) VALUES (?, ?, NOW())";
                 $stmt = $conn->prepare($insertPdfQuery);
                 if (!$stmt) {
                     throw new Exception("Prepare statement error: " . $conn->error);
                 }
-
-                // Bind the parameters
+                // Bind de parameters
                 $null = NULL;
                 $stmt->bind_param('ib', $invoiceId, $null);
-
-                // Send the actual BLOB data
+                // Stuur de daadwerkelijke BLOB-gegevens
                 $stmt->send_long_data(1, $pdfContent);
-
                 if (!$stmt->execute()) {
                     throw new Exception("PDF insert error: " . $stmt->error);
                 }
@@ -232,7 +245,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 die($e->getMessage());
             }
 
-            // Update invoiced status van de werkuren
+            // Update de gefactureerde status van de werkuren
             try {
                 $updateQuery = $conn->query("UPDATE `work_time` SET `invoiced` = 1 WHERE `project_id` = '$projectId' AND `invoiced` = 0");
                 if (!$updateQuery) {
@@ -242,13 +255,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 die($e->getMessage());
             }
 
+            // Redirect naar de homepage
             header('Location: homePage.php');
             exit();
-
         } elseif ($action === 'cancel') {
+            // Redirect naar de homepage bij annuleren
             header('Location: homePage.php');
             exit();
         } else {
+            // Gooi een uitzondering bij een ongeldige actie
             throw new Exception("Ongeldige actie.");
         }
     } catch (Exception $e) {
@@ -259,7 +274,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Functie om uren te berekenen
 function calculateHours($start, $end) {
     $start_time = strtotime($start);
-    $end_time = strtotime($end);
+    $end_time = strtotime($end); // Converteer de eindtijd naar een UNIX-timestamp
     $total_minutes = round(($end_time - $start_time) / 60); // Omzetten naar minuten en afronden
     return round($total_minutes / 60, 2); // Omzetten naar uren met 2 decimalen
 }

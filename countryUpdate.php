@@ -39,8 +39,8 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["id"])) {
     $query = "SELECT * FROM countries WHERE id = :id";
     $values = [':id' => $id];
     try {
-        $stmt = $pdo->prepare($query);
-        $stmt->execute($values);
+        $stmt = $pdo->prepare($query); // bereid query voor
+        $stmt->execute($values); // voert query uit
         // Het opgehaalde landgegevens ophalen
         $country = $stmt->fetch(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {

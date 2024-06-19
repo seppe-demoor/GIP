@@ -1,6 +1,6 @@
 <?php
-require "vendor/autoload.php";
-use Ramsey\Uuid\Uuid;
+require "vendor/autoload.php"; // Laadt de Composer autoloader om alle benodigde classes en bestanden automatisch te laden
+use Ramsey\Uuid\Uuid; // Importeer de Uuid class van de Ramsey\Uuid namespace
 
 require("header.php");
 require("start.php");
@@ -26,7 +26,7 @@ try {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $id = Uuid::uuid4();
+    $id = Uuid::uuid4(); // Genereer een nieuwe UUID
     
     // Ontvangen van de formuliergegevens
     $name = trim($_POST["name"]);
@@ -128,7 +128,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <select class="form-control" id="country" name="country" required>
                             <option value="">Selecteer een land</option>
                             <?php
-                            if ($res_countries->rowCount() > 0) {
+                            if ($res_countries->rowCount() > 0) { //Controleert of de query resultaten heeft opgeleverd
                                 while ($row = $res_countries->fetch(PDO::FETCH_ASSOC)) {
                                     echo "<option value='" . $row['id'] . "'>" . $row['name'] . "</option>"; // Hier wordt het ID van het land gebruikt
                                 }

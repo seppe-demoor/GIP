@@ -1,8 +1,8 @@
 <?php
-require("start.php");
-require("pdo.php");
+require("start.php"); // Laad het startbestand voor initiële instellingen en sessiebeheer
+require("pdo.php"); // Laad het PDO-bestand voor de databaseverbinding
 
-// Set locale to Dutch
+// Stel de locale in op Nederlands
 setlocale(LC_TIME, 'nl_NL');
 
 // Als de gebruiker niet is ingelogd, doorsturen naar de inlogpagina
@@ -11,7 +11,7 @@ if (!isset($_SESSION["email"])) {
     exit;
 }
 
-require("header.php");
+require("header.php"); // Laad de header voor de pagina
 
 // Logica voor het beëindigen van een project
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["end_project"])) {
@@ -21,38 +21,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["end_project"])) {
         $project_id = $_POST["project_id"];
 
         try {
+            // Voorbereiden van de query om de eindtijd van het project bij te werken
             $stmt = $conn->prepare("UPDATE `projects` SET `end_time` = NOW() WHERE `title` = ?");
-            $stmt->bind_param("s", $title);
-            $stmt->execute();
+            $stmt->bind_param("s", $title); // Bind de titel parameter
+            $stmt->execute(); // Voer de query uit
         } catch (Exception $e) {
-            die($e->getMessage());
+            die($e->getMessage()); // Stop het script en toon de foutmelding als er een uitzondering optreedt
         }
     }
 }
 
 // Ophalen van schema's en projecten uit de database
 try {
+    // Query om schema's op te halen die zijn gekoppeld aan projecten
     $schedules = $conn->query("SELECT l.id as work_id, p.id as project_id, p.title, p.description, l.start_time, l.end_time FROM projects p JOIN work_time l ON p.id = l.project_id;");
+    // Query om alle projecten op te halen
     $projects = $conn->query("SELECT * FROM `projects`");
 
     if (!$schedules || !$projects) {
-        throw new Exception("Query error: " . $conn->error);
+        throw new Exception("Query error: " . $conn->error); // Gooi een uitzondering als een van de queries mislukt
     }
 
     $sched_res = [];
     $project_res = [];
 
+    // Vul $project_res array met projectgegevens
     while ($row = $projects->fetch_assoc()) {
         $project_res[$row['id']] = $row;
     }
 
-    while ($row = $schedules->fetch_assoc()) {
-        $row['sdate'] = !empty($row['start_time']) ? date("F d, Y h:i A", strtotime($row['start_time'])) : 'N/A';
-        $row['edate'] = !empty($row['end_time']) ? date("F d, Y h:i A", strtotime($row['end_time'])) : 'N/A';
-        $sched_res[$row['work_id']] = $row;
-    }
+    // Loop door elke rij in de resultaten van de $schedules query
+        while ($row = $schedules->fetch_assoc()) {
+            // Controleer of de 'start_time' niet leeg is; zo ja, converteer het naar een leesbaar datumformaat
+            // Zo niet, zet het op 'N/A'
+            $row['sdate'] = !empty($row['start_time']) ? date("F d, Y h:i A", strtotime($row['start_time'])) : 'N/A';             
+            $row['edate'] = !empty($row['end_time']) ? date("F d, Y h:i A", strtotime($row['end_time'])) : 'N/A';
+        
+            // Voeg de verwerkte rij toe aan de $sched_res array, waarbij de 'work_id' als sleutel wordt gebruikt
+            $sched_res[$row['work_id']] = $row;
+        }
+
 } catch (Exception $e) {
-    die($e->getMessage());
+    die($e->getMessage()); // Stop het script en toon de foutmelding als er een uitzondering optreedt
 }
 
 // Hanteren van projectselectie
@@ -66,12 +76,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["select_project"])) {
 if (isset($_SESSION["selected_project_id"])) {
     $selectedProjectId = $_SESSION["selected_project_id"];
     try {
+        // Query om het geselecteerde project op te halen
         $selectedProject = $conn->query("SELECT title, description FROM `projects` WHERE `id` = '$selectedProjectId'")->fetch_assoc();
         if (!$selectedProject) {
-            throw new Exception("Geen project gevonden met ID: $selectedProjectId");
+            throw new Exception("Geen project gevonden met ID: $selectedProjectId"); // Gooi een uitzondering als het project niet wordt gevonden
         }
     } catch (Exception $e) {
-        die($e->getMessage());
+        die($e->getMessage()); // Stop het script en toon de foutmelding als er een uitzondering optreedt
     }
 }
 
@@ -233,52 +244,33 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
     </div>
 
     <?php
-    if (isset($conn)) $conn->close();
+    if (isset($conn)) $conn->close(); // Sluit de databaseverbinding als deze bestaat
     ?>
     <script>
         var scheds = <?php echo json_encode($sched_res); ?>;
-        
-        function toggleDateTime() {
-            var dateTimeContainer = document.getElementById("dateTimeContainer");
-            var buttonsContainer = document.getElementById("buttonsContainer");
-
-            if (document.getElementById("showDateTime").checked) {
-                dateTimeContainer.style.display = "block";
-                buttonsContainer.style.display = "none";
-            } else {
-                dateTimeContainer.style.display = "none";
-                buttonsContainer.style.display = "block";
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            var showDateTimeCheckbox = document.getElementById("showDateTime");
-            var saveButton = document.getElementById("saveButton");
-            var cancelButton = document.getElementById("cancelButton");
-
-            showDateTimeCheckbox.addEventListener("change", function() {
-                if (this.checked) {
-                    saveButton.style.display = "inline-block";
-                    cancelButton.style.display = "inline-block";
-                } else {
-                    saveButton.style.display = "none";
-                    cancelButton.style.display = "none";
-                }
-            });
-        }); 
 
         function startProject() {
+            // Start een AJAX-verzoek om een project te starten
             $.ajax({
+               
                 type: 'POST',
+                // Stel de URL in waar het verzoek naar toe moet
                 url: 'save_schedule.php',
+                // Specificeer de gegevens die naar de server worden gestuurd
                 data: {
                     action: 'start_project',
+                    // Gebruik de project_id, waarbij een standaardwaarde van 1 wordt gebruikt als $selectedProjectId nul is
                     project_id: <?php echo is_null($selectedProjectId) ? 1 : $selectedProjectId ?>,
+                    // Haal de waarde op van het inputveld met ID 'title'
                     title: $('#title').val(),
+                    // Haal de waarde op van het inputveld met ID 'description'
                     description: $('#description').val()
                 },
+                // Functie die wordt uitgevoerd als het verzoek succesvol is
                 success: function (response) {
+                    // Toon de groene balk
                     $('#green-bar').show();
+                    // Zet de sessievariabele "green_bar_visible" op true
                     <?php $_SESSION["green_bar_visible"] = true; ?>
                 },
                 error: function (error) {
@@ -287,19 +279,30 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
             });
         }
 
+
         function endProject() {
+            // Start een AJAX-verzoek om een project te beëindigen
             $.ajax({
                 type: 'POST',
+                // Stel de URL in waar het verzoek naar toe moet
                 url: 'save_schedule.php',
+                // Specificeer de gegevens die naar de server worden gestuurd
                 data: {
                     action: 'end_project',
+                    // Gebruik de project_id, waarbij een standaardwaarde van 1 wordt gebruikt als $selectedProjectId nul is
                     project_id: <?php echo is_null($selectedProjectId) ? 1 : $selectedProjectId ?>,
+                    // Haal de waarde op van het inputveld met ID 'title'
                     title: $('#title').val(),
+                    // Haal de waarde op van het inputveld met ID 'description'
                     description: $('#description').val()
                 },
+                // uitgevoerd als het verzoek succesvol is
                 success: function (response) {
+                    // Verberg de groene balk
                     $('#green-bar').hide();
+                    // Verwijder de sessievariabele "green_bar_visible"
                     <?php unset($_SESSION["green_bar_visible"]); ?>
+                    // Herlaad de pagina
                     location.reload();
                 },
                 error: function (error) {
@@ -308,24 +311,32 @@ $greenBarVisible = isset($_SESSION["green_bar_visible"]) ? $_SESSION["green_bar_
             });
         }
 
+
         $(document).on("click", "#edit", function() {
+            // Haal de waarde van het data-id attribuut op van het geklikte element en sla deze op in de variabele eventId
             var eventId = $(this).data("id");
+            // Gebruik het eventId om het bijbehorende event op te halen uit de scheds array en sla het op in de variabele event
             var event = scheds[eventId];
+            // Zet de waarde van het inputveld met ID "edit-event-id" op eventId
             $("#edit-event-id").val(eventId);
             $("#edit-title").val(event.title);
             $("#edit-description").val(event.description);
 
+            // Definieer een functie om een datumstring te formatteren naar een ISO-string zonder seconden
             var formatDate = function(dateString) {
                 return new Date(dateString).toISOString().slice(0, 16);
             };
 
+            // Zet de waarde van het inputveld met ID "edit-start-time" op de geformatteerde starttijd van het event
             $("#edit-start-time").val(formatDate(event.start_time)); 
             $("#edit-end-time").val(formatDate(event.end_time)); 
 
+            // Toon het modaal venster met ID "event-edit-modal"
             $("#event-edit-modal").modal("show");
         });
+
     </script>
     <script src="./js/script.js"></script>
 <?php
-require("footer.php");
+require("footer.php"); // Laad de footer voor de pagina
 ?>

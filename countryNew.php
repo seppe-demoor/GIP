@@ -10,7 +10,7 @@ if (!isset($_SESSION['email'])) {
     // Gebruiker is nog niet aangemeld, doorsturen naar de inlogpagina
     header("Location: loginPage.php");
     exit;
-}
+}   
 
 // Controleren of het verzoek een POST-verzoek is
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
