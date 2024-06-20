@@ -8,15 +8,13 @@ body {
     background-color: #008BBA;
     color: white;
     padding: 20px;
-    text-align: center;
-    width: 100%; 
-    box-sizing: border-box; 
+    width: 100%;
+    box-sizing: border-box;
     margin: 0;
 }
 
 .content {
     padding: 20px;
-    
 }
 
 .footer {
@@ -35,6 +33,7 @@ body {
 
 .large {
     font-size: 20px;
+    font-weight: bold;
 }
 
 .left {
@@ -55,4 +54,60 @@ body {
     content: "";
     display: table;
     clear: both;
+}
+
+h1 {
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+
+h3 {
+    margin: 5px 0;
+}
+
+p {
+    margin: 5px 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    table-layout: fixed;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    word-wrap: break-word;
+}
+
+.invoice-title {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.invoice-info {
+    text-align: right;
+    margin-top: 10px;
+}
+
+.totals {
+    margin-top: 20px;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+}
+
+.total-row .label {
+    font-weight: bold;
+}
+
+.total-row .amount {
+    text-align: right;
 }
