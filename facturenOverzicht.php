@@ -68,73 +68,81 @@ require("header.php");
         .btn {
             margin-top: 10px;
         }
+        table {
+            text-align: center;
+        }
+        th, td {
+            vertical-align: middle !important;
+        }
     </style>
 </head>
-        <body>
-        <div class="container">
-            <!-- Formulier voor het selecteren van een project -->
-            <form method="post" action="">
-                <div class="form-group">
-                    <!-- Label voor het dropdown menu -->
-                    <label for="projectSelect">Selecteer een Project</label>
-                    <!-- Dropdown menu om een project te selecteren -->
-                    <select class="form-control" name="project_id" id="projectSelect">
-                        <!-- Optie om alle projecten te tonen -->
-                        <option value="all" <?= $selectedProjectId === null ? 'selected' : '' ?>>Alle Projecten</option>
-                        <!-- Loop door alle projecten en voeg een optie toe voor elk project -->
-                        <?php foreach ($projects_query as $project) : ?>
-                            <!-- Optie voor een specifiek project -->
-                            <option value="<?= $project['id'] ?>" <?= $selectedProjectId == $project['id'] ? 'selected' : '' ?>>
-                                <!-- Toon de titel van het project, veilig voor speciale tekens -->
-                                <?= htmlspecialchars($project['title'], ENT_QUOTES, 'UTF-8') ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <!-- Knop om het formulier in te dienen -->
-                    <button type="submit" class="btn btn-primary">Selecteer Project</button>
-                </div>
-            </form>
-
-            <div class="row">
-                <div class="col-sm-12">
-                    <!-- Tabel om de resultaten weer te geven -->
-                    <table class="table table-hover table-striped">
-                        <tr>
-                            <th>Naam</th>
-                            <th>Prijs</th>
-                            <th>Aangemaakt op Datum</th>
-                            <th>PDF</th>
-                        </tr>
-                        <!-- Controleert of de query resultaten heeft opgeleverd -->
-                        <?php if($res->rowCount() != 0) : ?>
-                            <!-- Haalt elke rij uit de queryresultaten op -->
-                            <?php while($row = $res->fetch(PDO::FETCH_ASSOC)) : ?>
-                                <tr>
-                                    <!-- Toon de titel van het project -->
-                                    <td><?= htmlspecialchars($row["title"], ENT_QUOTES, 'UTF-8') ?></td>
-                                    <!-- Toon het totale bedrag van de factuur -->
-                                    <td>€<?= htmlspecialchars($row["total_amount"], ENT_QUOTES, 'UTF-8') ?></td>
-                                    <!-- Toon de datum van de factuur -->
-                                    <td><?= htmlspecialchars($row["invoice_date"], ENT_QUOTES, 'UTF-8') ?></td>
-                                    <!-- Toon de link naar de PDF of een bericht als er geen PDF is -->
-                                    <td>
-                                        <?php if ($row["pdf_data"]) : ?>
-                                            <a href="view_pdf.php?invoice_id=<?= $row['invoice_id'] ?>" target="_blank">Bekijk PDF</a>
-                                        <?php else : ?>
-                                            Geen PDF
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                            <?php endwhile; ?>
-                        <?php else : ?>
-                            <!-- Bericht als er geen gegevens zijn -->
-                            <tr><td colspan='4'>Geen gegevens gevonden</td></tr>
-                        <?php endif; ?>
-                    </table>
-                </div>
-            </div>
+<body>
+<div class="container">
+    <!-- Formulier voor het selecteren van een project -->
+    <form method="post" action="">
+        <div class="form-group">
+            <!-- Label voor het dropdown menu -->
+            <label for="projectSelect">Selecteer een Project</label>
+            <!-- Dropdown menu om een project te selecteren -->
+            <select class="form-control" name="project_id" id="projectSelect">
+                <!-- Optie om alle projecten te tonen -->
+                <option value="all" <?= $selectedProjectId === null ? 'selected' : '' ?>>Alle Projecten</option>
+                <!-- Loop door alle projecten en voeg een optie toe voor elk project -->
+                <?php foreach ($projects_query as $project) : ?>
+                    <!-- Optie voor een specifiek project -->
+                    <option value="<?= htmlspecialchars($project['id'], ENT_QUOTES, 'UTF-8') ?>" <?= $selectedProjectId == $project['id'] ? 'selected' : '' ?>>
+                        <!-- Toon de titel van het project, veilig voor speciale tekens -->
+                        <?= htmlspecialchars($project['title'], ENT_QUOTES, 'UTF-8') ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <!-- Knop om het formulier in te dienen -->
+            <button type="submit" class="btn btn-primary">Selecteer Project</button>
         </div>
+    </form>
 
-    <?php require("footer.php"); ?>
+    <div class="row">
+        <div class="col-sm-12">
+            <!-- Tabel om de resultaten weer te geven -->
+            <table class="table table-hover table-striped">
+                <tr>
+                    <th>Naam</th>
+                    <th>Prijs</th>
+                    <th>Aangemaakt op Datum</th>
+                    <th>Bekijk PDF</th>
+                </tr>
+                <!-- Controleert of de query resultaten heeft opgeleverd -->
+                <?php if ($res->rowCount() != 0) : ?>
+                    <!-- Haalt elke rij uit de queryresultaten op -->
+                    <?php while ($row = $res->fetch(PDO::FETCH_ASSOC)) : ?>
+                        <tr>
+                            <!-- Toon de titel van het project -->
+                            <td><?= htmlspecialchars($row["title"], ENT_QUOTES, 'UTF-8') ?></td>
+                            <!-- Toon het totale bedrag van de factuur -->
+                            <td>€<?= htmlspecialchars($row["total_amount"], ENT_QUOTES, 'UTF-8') ?></td>
+                            <!-- Toon de datum van de factuur in Belgisch formaat -->
+                            <td><?= date("d-m-Y", strtotime($row["invoice_date"])) ?></td>
+                            <!-- Toon de link naar de PDF of een bericht als er geen PDF is -->
+                            <td>
+                                <?php if ($row["pdf_data"]) : ?>
+                                    <a href="view_pdf.php?invoice_id=<?= $row['invoice_id'] ?>" target="_blank" class="bi bi-file-earmark-pdf text-danger fs-4"></a>
+                                <?php else : ?>
+                                    Geen PDF
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                <?php else : ?>
+                    <!-- Bericht als er geen gegevens zijn -->
+                    <tr>
+                        <td colspan='4'>Geen gegevens gevonden</td>
+                    </tr>
+                <?php endif; ?>
+            </table>
+        </div>
+    </div>
+</div>
+
+<?php require("footer.php"); ?>
 </body>
 </html>
